@@ -28,3 +28,5 @@ If you are writing AHK scripts using HotVoice, this does not apply to you.
 1. Install the [Microsoft Speech Platform SDK 11](https://msdn.microsoft.com/en-us/library/hh362873(v=office.14).aspx#Anchor_2).  
 2. When you open the SLN, you may need to fix the reference to `Microsoft.Speech`  
 It can be found in `C:\Program Files\Microsoft SDKs\Speech\v11.0\Assembly` 
+
+[Speech API Reference on MSDN](https://msdn.microsoft.com/en-us/library/hh378380(v=office.14).aspx)
