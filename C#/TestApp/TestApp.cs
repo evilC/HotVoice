@@ -11,19 +11,31 @@ namespace TestApp
         static void Main(string[] args)
         {
             var hv = new HotVoice();
-            var str = hv.GetRecognizers();
             hv.Initialize();
-            hv.SubscribeWord("five", new Action(() => {
-                Console.WriteLine("Five");
+
+            //hv.AddChoiceList("udlr", new[] {"Up", "Down", "Left", "Right"});
+            hv.AddChoiceList("Apps", "Notepad, Command Prompt");
+            hv.SubscribeWordWithChoiceList("flaps", "Percent", new Action<string>((value) => {
+                Console.WriteLine($"flaps: {value}");
             }));
 
-            hv.SubscribeWord("one", new Action(() => {
-                Console.WriteLine("One");
+            hv.SubscribeWordWithChoiceList("Launch", "Apps", new Action<string>((value) =>
+            {
+                Console.WriteLine($"Launch: *{value}*");
             }));
 
-            hv.SubscribeVolume(new Action<int>((value) => {
-                Console.WriteLine("Volume: " + value);
+            hv.SubscribeWord("test", new Action(() =>
+            {
+                Console.WriteLine("Test");
             }));
+
+            //hv.SubscribeWord("one", new Action(() => {
+            //    Console.WriteLine("One");
+            //}));
+
+            //hv.SubscribeVolume(new Action<int>((value) => {
+            //    Console.WriteLine("Volume: " + value);
+            //}));
 
             while (true)
             {

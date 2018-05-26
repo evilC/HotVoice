@@ -3,6 +3,14 @@ Class HotVoice {
 		this.hv.SubscribeWord(word, cb)
 	}
 	
+	SubscribeWordWithChoiceList(word, choiceList, cb){
+		this.hv.SubscribeWordWithChoiceList(word, choiceList, cb)
+	}
+	
+	AddChoiceList(name, choiceArray){
+		this.hv.AddChoiceList(name, choiceArray)
+	}
+	
 	SubscribeVolume(cb){
 		this.hv.SubscribeVolume(cb)
 	}

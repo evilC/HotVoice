@@ -18,14 +18,20 @@ public class HotVoice
 {
     private SpeechRecognitionEngine _recognizer;
     private readonly Dictionary<string, dynamic> _wordCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, dynamic> _parameterCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
     private dynamic _volumeCallback;
     private int _volumeLevel = 0;
     private bool _recognizerRunning;
     private readonly List<RecognizerInfo> _recognizers;
+    private readonly  Dictionary<string, Choices> _choiceDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
 
     public HotVoice()
     {
         _recognizers = SpeechRecognitionEngine.InstalledRecognizers().ToList();
+        var percentileChoices = new Choices();
+        for (var i = 0; i <= 100; i++)
+            percentileChoices.Add(i.ToString());
+        _choiceDictionary.Add("Percent", percentileChoices);
     }
 
     public string OkCheck()
@@ -40,7 +46,7 @@ public class HotVoice
         _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Id);
 
         // Add a handler for the speech recognized event.
-        _recognizer.SpeechRecognized += recognizer_SpeechRecognized;
+        _recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
 
         // Configure the input to the speech recognizer.
         _recognizer.SetInputToDefaultAudioDevice();
@@ -67,7 +73,6 @@ public class HotVoice
 
     public Dictionary<string, string> GetRecognizers()
     {
-        var str = string.Empty;
         var dict = new Dictionary<string, string>();
         foreach (var t in _recognizers)
         {
@@ -75,6 +80,57 @@ public class HotVoice
         }
 
         return dict;
+    }
+
+    public string Test(string[] blah)
+    {
+        return "OK";
+    }
+
+//    public void AddChoiceList(string name, string[] choiceArray)
+    public void AddChoiceList(string name, string choiceString)
+    {
+        var parts = choiceString.Split(',').Select(p => p.Trim()).ToArray();
+
+        _choiceDictionary.Add(name, new Choices(parts));
+    }
+
+    private Choices GetChoiceList(string name)
+    {
+        if (!_choiceDictionary.ContainsKey(name))
+        {
+            throw new Exception($"Could not find Choice List {name}");
+        }
+
+        return _choiceDictionary[name];
+    }
+
+    public bool SubscribeWordWithChoiceList(string text, string choiceList, dynamic callback)
+    {
+        try
+        {
+            if (_parameterCallbacks.ContainsKey(text))
+            {
+                return false;
+            }
+            _parameterCallbacks[text] = callback;
+
+            var gb = new GrammarBuilder(text);
+
+            gb.Append(GetChoiceList(choiceList));
+            
+
+            var g = new Grammar(gb) {Priority = 127};
+
+            _recognizer.LoadGrammar(g);
+
+            StartRecognizer();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public bool SubscribeWord(string text, dynamic callback)
@@ -87,8 +143,8 @@ public class HotVoice
             }
             _wordCallbacks[text] = callback;
 
-            var servicesGrammar = new Grammar(new GrammarBuilder(new Choices(new string[] { text })));
-            _recognizer.LoadGrammarAsync(servicesGrammar);
+            var g = new Grammar(new GrammarBuilder(text));
+            _recognizer.LoadGrammar(g);
 
             StartRecognizer();
             return true;
@@ -104,7 +160,7 @@ public class HotVoice
         try
         {
             _volumeCallback = callback;
-            _recognizer.AudioLevelUpdated += new EventHandler<AudioLevelUpdatedEventArgs>(sre_AudioLevelUpdated);
+            _recognizer.AudioLevelUpdated += Recognizer_AudioLevelUpdated;
             StartRecognizer();
             return true;
         }
@@ -125,13 +181,31 @@ public class HotVoice
     }
            
     // Handle the SpeechRecognized event.
-    private void recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+    private void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
     {
-        _wordCallbacks[e.Result.Text]();
+        var word = e.Result.Words[0].Text;
+        if (e.Result.Words.Count > 1)
+        {
+            var p = "";
+            var max = e.Result.Words.Count;
+            for (var i = 1; i < max; i++)
+            {
+                p += e.Result.Words[i].Text;
+                if (i < max - 1)
+                {
+                    p += " ";
+                }
+            }
+            _parameterCallbacks[word](p);
+        }
+        else
+        {
+            _wordCallbacks[word]();
+        }
     }
 
     // Write the audio level to the console when the AudioLevelUpdated event is raised.
-    private void sre_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
+    private void Recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
     {
         if (e.AudioLevel != _volumeLevel)
         {
