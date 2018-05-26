@@ -1,4 +1,5 @@
 #SingleInstance force
+#Persistent ; You will need this if your script creates no hotkeys or has no GUI
 
 ; Load the HotVoice Library
 #include Lib\HotVoice.ahk
