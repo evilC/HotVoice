@@ -1,49 +1,95 @@
 #SingleInstance force
+#Persistent
 
-; Load CLR library that allows us to load C# DLLs
+; Load the HotVoice Library
 #include Lib\HotVoice.ahk
-recognizerID := 0	; Set Recognizer ID here if you need to
-words := ["Guns", "Bombs", "Flaps"]
 
-Gui, Add, Text, xm Center w400, % "Found Recognizers (Using ID " recognizerID ")"
-Gui, Add, ListView, xm w400, ID|Name
-Gui, Add, Text, Center w400, Mic Volume
-Gui, Add, Slider, xm w400 hwndhSlider
-Gui, Add, Text, xm Center w400, Available Words
-Gui, Add, Text, xm w400 hwndhWords
-Gui, Add, Text, xm Center w400, Output
-Gui, Add, Edit, hwndhOutput w400 r5
+Gui, Add, Text, xm w600 Center, Available Commands
+Gui, Add, ListView, xm w600 r10, Name|Grammar
+Gui, Add, Text, xm Center w600, Mic Volume
+Gui, Add, Slider, xm w600 hwndhSlider
+Gui, Add, Text, xm Center w600, Output
+Gui, Add, Edit, hwndhOutput w600 r5
+LV_ModifyCol(1, 80)
+
+; Create a new HotVoice class
+hv := new HotVoice()
+
+; Initialize HotVoice and tell it what ID Recognizer to use
+hv.Initialize(0)
+
+; -------- Volume Command ------------
+volumeGrammar := hv.Factory.CreateGrammar()
+volumeGrammar.AppendString("Volume")
+
+percentPhrase := hv.Factory.CreateGrammar()
+percentChoices := hv.GetChoices("Percent")
+percentPhrase.AppendChoices(percentChoices)
+percentPhrase.AppendString("percent")
+
+fractionPhrase := hv.Factory.CreateGrammar()
+fractionChoices := hv.Factory.CreateChoices("quarter, half, three-quarters, full")
+fractionPhrase.AppendChoices(fractionChoices)
+
+volumeGrammar.AppendGrammars(fractionPhrase, percentPhrase)
+
+LV_Add(, "Volume", hv.LoadGrammar(volumeGrammar, "Volume", Func("Volume")))
+
+; -------- Call Contact Command -------------
+contactGrammar := hv.Factory.CreateGrammar()
+contactGrammar.AppendString("Call")
+
+femaleGrammar := hv.Factory.CreateGrammar()
+femaleChoices := hv.Factory.CreateChoices("Anne, Mary")
+femaleGrammar.AppendChoices(femaleChoices)
+femaleGrammar.AppendString("on-her")
+
+maleGrammar := hv.Factory.CreateGrammar()
+maleChoices := hv.Factory.CreateChoices("James, Sam")
+maleGrammar.AppendChoices(maleChoices)
+maleGrammar.AppendString("on-his")
+
+contactGrammar.AppendGrammars(maleGrammar, femaleGrammar)
+
+phoneChoices := hv.Factory.CreateChoices("cell, home, work")
+contactGrammar.AppendChoices(phoneChoices)
+contactGrammar.AppendString("phone")
+
+LV_Add(, "CallContact", hv.LoadGrammar(contactGrammar, "CallContact", Func("CallContact")))
 Gui, Show, , HotVoice Demo
 
-hv := new HotVoice()
-recognizers := hv.GetRecognizerList()
-
-Loop % recognizers.Length(){
-	rec := recognizers[A_index]
-	LV_Add(, rec.Id, rec.Name)
-}
-
-; Start the engine!!
-hv.Initialize(recognizerID)
-
-max := words.Length()
-Loop % max {
-	word := words[A_Index]
-	hv.SubscribeWord(word, Func("UpdateOutput").Bind(word))
-	l .= word
-	if (A_Index != max)
-		l .= ", "
-}
-GuiControl, , % hWords, % l
-
 ; Monitor the volume
-hv.SubscribeVolume(Func("VolumeChanged"))
+hv.SubscribeVolume(Func("OnMicVolumeChange"))
+
+hv.StartRecognizer()
 
 return
 
-VolumeChanged(state){
+OnMicVolumeChange(state){
 	global hSlider
 	GuiControl, , % hSlider, % state
+}
+
+Volume(grammarName, words){
+	static fractionToPercent := {"quarter": 25, "half": 50, "three-quarters": 75, "full": 100}
+	if (words[3] = "percent"){
+		vol := words[2]
+	} else {
+		vol := fractionToPercent[words[2]]
+	}
+	UpdateOutput(grammarName ": " words[2] " " words[3] " -- SETTING VOLUME TO " vol)
+	SoundSet, % vol
+}
+
+CallContact(grammarName, words){
+	max := words.Length()
+	Loop % max {
+		wordStr .= words[A_Index]
+		if (A_Index != max){
+			wordStr .= " "
+		}
+	}
+	UpdateOutput(grammarName ": " wordStr)
 }
 
 UpdateOutput(text){
@@ -53,13 +99,12 @@ UpdateOutput(text){
 	Gui, +HwndhGui
 	; Get old text
 	GuiControlGet, t, , % hOutput
-	t .= text " @ " A_Now "`n"
+	;~ t .= text " @ " A_Now "`n"
+	t .= text "`n"
 	GuiControl, , % houtput, % t
 	; Scroll box to end
 	PostMessage, WM_VSCROLL, SB_BOTTOM, 0, Edit1, ahk_id %hGui%
 }
 
-
 ^Esc::
-GuiClose:
 	ExitApp

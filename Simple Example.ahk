@@ -11,10 +11,16 @@ hv := new HotVoice()
 hv.Initialize(0)
 
 ; Add a word, and tell it which function to call when that word is spoken
-hv.SubscribeWord("Test", Func("MyFunc"))
+; hv.SubscribeWord("Test", Func("MyFunc"))
+volumeGrammar := hv.Factory.CreateGrammar()
+volumeGrammar.AppendString("Test")
+
+hv.LoadGrammar(volumeGrammar, "Test", Func("MyFunc"))
+
+hv.StartRecognizer()
 
 return
 
-MyFunc(){
-	ToolTip % "HotWord was triggered @ " A_TickCount
+MyFunc(grammarName, words){
+	ToolTip % "Command " grammarName " was triggered @ " A_TickCount " with " words.Length() " words"
 }

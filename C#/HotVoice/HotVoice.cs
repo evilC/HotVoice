@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using HotVoice.Factories;
 using Microsoft.Speech.Recognition;
 
 // Get Started with Speech Recognition (Microsoft.Speech):
 // https://msdn.microsoft.com/en-us/library/hh378426(v=office.14).aspx
+
+// Namespace Reference
+// https://msdn.microsoft.com/en-us/library/microsoft.speech.recognition(v=office.14).aspx
 
 // Install stuff from here:
 // https://msdn.microsoft.com/en-us/library/hh362873(v=office.14).aspx#Anchor_2
@@ -14,254 +16,191 @@ using Microsoft.Speech.Recognition;
 // Plus a recognizer:
 // https://www.microsoft.com/en-us/download/details.aspx?id=27224
 
-public class HotVoice
+namespace HotVoice
 {
-    private SpeechRecognitionEngine _recognizer;
-    //private readonly Dictionary<string, dynamic> _wordCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
-    //private readonly Dictionary<string, dynamic> _parameterCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
-    private dynamic _volumeCallback;
-    private int _volumeLevel = 0;
-    private bool _recognizerRunning;
-    private readonly List<RecognizerInfo> _recognizers;
-    private readonly  Dictionary<string, Choices> _choiceVarDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, GrammarBuilder> _grammarBuilderDictionary = new Dictionary<string, GrammarBuilder>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, dynamic> _grammarCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
-
-    public HotVoice()
+    public class LoadedGrammar
     {
-        _recognizers = SpeechRecognitionEngine.InstalledRecognizers().ToList();
-        var percentileChoices = new Choices();
-        for (var i = 0; i <= 100; i++)
-            percentileChoices.Add(i.ToString());
-        _choiceVarDictionary.Add("Percent", percentileChoices);
+        public HotGrammar HotGrammar { get; set; }
+        public dynamic Callback { get; set; }
     }
 
-    public string OkCheck()
+    public class HotVoice
     {
-        return "OK";
-    }
+        private SpeechRecognitionEngine _recognizer;
+        private dynamic _volumeCallback;
+        private int _volumeLevel = 0;
+        private bool _recognizerRunning;
+        private readonly List<RecognizerInfo> _recognizers;
+        private readonly  Dictionary<string, Choices> _choicesDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
+        private readonly Dictionary<string, LoadedGrammar> _loadedHotGrammarDictionary = new Dictionary<string, LoadedGrammar>(StringComparer.OrdinalIgnoreCase);
 
-    public void Initialize(int recognizerId = 0)
-    {
-        AssertRecognizerExists(recognizerId);
+        public GrammarFactory Factory { get; } = new GrammarFactory();
 
-        _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Id);
-
-        // Add a handler for the speech recognized event.
-        _recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
-
-        // Configure the input to the speech recognizer.
-        _recognizer.SetInputToDefaultAudioDevice();
-    }
-
-    #region Grammar Vars & Choice Vars
-    public GrammarBuilder GrammarVarGet(string name)
-    {
-        if (!_grammarBuilderDictionary.ContainsKey(name))
+        #region Startup
+        public HotVoice()
         {
-            _grammarBuilderDictionary.Add(name, new GrammarBuilder());
+            _recognizers = SpeechRecognitionEngine.InstalledRecognizers().ToList();
+            var percentileChoices = new Choices();
+            for (var i = 0; i <= 100; i++)
+                percentileChoices.Add(i.ToString());
+            _choicesDictionary.Add("Percent", percentileChoices);
         }
 
-        return _grammarBuilderDictionary[name];
-    }
-
-    public string GrammarVarLoad(string grammarName, dynamic callback)
-    {
-        var gb = GrammarVarGet(grammarName);
-        var g = new Grammar(gb);
-        _grammarCallbacks.Add(grammarName, callback);
-        g.Name = grammarName;
-        _recognizer.LoadGrammar(g);
-        return gb.DebugShowPhrases;
-    }
-
-    public void GrammarVarAddString(string name, string str)
-    {
-        GrammarVarGet(name).Append(str);
-    }
-
-    public void GrammarVarAddGrammarVars(string grammarName, string grammarVars)
-    {
-        var choices = GrammarVarListToChoices(grammarVars);
-        GrammarVarGet(grammarName).Append(choices);
-    }
-
-    public void GrammarVarAddChoiceVar(string grammarName, string choiceVar)
-    {
-        GrammarVarGet(grammarName).Append(ChoiceVarGet(choiceVar));
-    }
-
-    public GrammarBuilder[] GrammarVarListToGrammarBuilderArray(string grammarBuilderVarList)
-    {
-        var grammarVars = StringToArray(grammarBuilderVarList);
-        var grammarBuilderArray = new GrammarBuilder[grammarVars.Length];
-        for (var i = 0; i < grammarVars.Length; i++)
+        /// <summary>
+        /// Checks that you can speak to this Library
+        /// </summary>
+        /// <returns>OK</returns>
+        public string OkCheck()
         {
-            grammarBuilderArray[i] = GrammarVarGet(grammarVars[i]);
+            return "OK";
         }
 
-        return grammarBuilderArray;
-    }
-
-    public Choices GrammarVarListToChoices(string grammarBuilderListStr)
-    {
-        //var names = StringToArray(grammarBuilderVarList);
-        return new Choices(GrammarVarListToGrammarBuilderArray(grammarBuilderListStr));
-    }
-
-    public void ChoiceVarAdd(string name, string choiceString)
-    {
-        _choiceVarDictionary.Add(name, new Choices(StringToArray(choiceString)));
-    }
-
-    private Choices ChoiceVarGet(string name)
-    {
-        if (!_choiceVarDictionary.ContainsKey(name))
+        /// <summary>
+        /// Start the Recognizer
+        /// </summary>
+        /// <param name="recognizerId">The RecognizerID to use</param>
+        public void Initialize(int recognizerId = 0)
         {
-            throw new Exception($"Could not find Choice Var {name}");
+            AssertRecognizerExists(recognizerId);
+
+            _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Id);
+
+            // Add a handler for the speech recognized event.
+            _recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
+
+            // Configure the input to the speech recognizer.
+            _recognizer.SetInputToDefaultAudioDevice();
         }
 
-        return _choiceVarDictionary[name];
-    }
+        /// <summary>
+        /// Loads a HotGrammar object into the recognizer
+        /// </summary>
+        /// <param name="hotGrammar"></param>
+        /// <param name="name">The name to give the Grammar</param>
+        /// <param name="callback">The code to fire when the Grammar is spoken</param>
+        /// <returns></returns>
+        public string LoadGrammar(HotGrammar hotGrammar, string name, dynamic callback)
+        {
+            _loadedHotGrammarDictionary.Add(name, new LoadedGrammar { HotGrammar = hotGrammar, Callback = callback });
+            var g = new Grammar(hotGrammar.GrammarBuilder) { Name = name };
+            _recognizer.LoadGrammar(g);
+            return hotGrammar.GetPhrases();
+        }
 
+        /// <summary>
+        /// Request a callback when the Mic Volume changes
+        /// </summary>
+        /// <param name="callback">The code to call when the volume changes</param>
+        /// <returns></returns>
+        public bool SubscribeVolume(dynamic callback)
+        {
+            try
+            {
+                _volumeCallback = callback;
+                _recognizer.AudioLevelUpdated += Recognizer_AudioLevelUpdated;
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Starts listening for voice input
+        /// </summary>
+        public void StartRecognizer()
+        {
+            if (!_recognizerRunning)
+            {
+                // Start asynchronous, continuous speech recognition.
+                _recognizer.RecognizeAsync(RecognizeMode.Multiple);
+                _recognizerRunning = true;
+            }
+        }
+        #endregion
+
+        #region Grammar and Choice Dictionary manipulation
+        public HotGrammar GetLoadedHotGrammar(string name)
+        {
+            return _loadedHotGrammarDictionary[name].HotGrammar;
+        }
+
+        public Choices GetChoices(string name)
+        {
+            if (!_choicesDictionary.ContainsKey(name))
+            {
+                throw new Exception($"Could not find Choice Var {name}");
+            }
+
+            return _choicesDictionary[name];
+        }
+
+        public void SetChoices(string name, Choices choices)
+        {
+            _choicesDictionary.Add(name, choices);
+        }
+        #endregion
+
+        #region Recognizers
+
+        public int GetRecognizerCount()
+        {
+            return _recognizers.Count;
+        }
+
+        public void AssertRecognizerExists(int recognizerId)
+        {
+            if (_recognizers.Count() < recognizerId)
+            {
+                throw new Exception($"Recognizer ID {recognizerId} does not exist");
+            }
+        }
+
+        public string GetRecognizerName(int recognizerId)
+        {
+            AssertRecognizerExists(recognizerId);
+            return _recognizers[recognizerId].Name;
+        }
+
+        public Dictionary<string, string> GetRecognizers()
+        {
+            var dict = new Dictionary<string, string>();
+            foreach (var t in _recognizers)
+            {
+                dict.Add(t.Id, t.Name);
+            }
+
+            return dict;
+        }
+
+        #endregion
+
+        #region Event Handling
+        // Handle the SpeechRecognized event.
+        private void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
+        {
+            var name = e.Result.Grammar.Name;
+            var words = new string[e.Result.Words.Count];
+            for (var i = 0; i < e.Result.Words.Count; i++)
+            {
+                words[i] = e.Result.Words[i].Text;
+            }
+
+            _loadedHotGrammarDictionary[name].Callback(name, words);
+            //_loadedHotGrammarDictionary[name](name, words);
+        }
+
+        // Write the audio level to the console when the AudioLevelUpdated event is raised.
+        private void Recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
+        {
+            if (e.AudioLevel != _volumeLevel)
+            {
+                _volumeLevel = e.AudioLevel;
+                _volumeCallback(_volumeLevel);
+            }
+        }
     #endregion
-
-    #region Recognizers
-
-    public int GetRecognizerCount()
-    {
-        return _recognizers.Count;
     }
-
-    public void AssertRecognizerExists(int recognizerId)
-    {
-        if (_recognizers.Count() < recognizerId)
-        {
-            throw new Exception($"Recognizer ID {recognizerId} does not exist");
-        }
-    }
-
-    public string GetRecognizerName(int recognizerId)
-    {
-        AssertRecognizerExists(recognizerId);
-        return _recognizers[recognizerId].Name;
-    }
-
-    public Dictionary<string, string> GetRecognizers()
-    {
-        var dict = new Dictionary<string, string>();
-        foreach (var t in _recognizers)
-        {
-            dict.Add(t.Id, t.Name);
-        }
-
-        return dict;
-    }
-
-    #endregion
-
-    // I don't know how to pass an array of strings from AHK to C#, so for now, just use comma-separated strings
-    public string[] StringToArray(string choiceString) => choiceString.Split(',').Select(p => p.Trim()).ToArray();
-
-    #region Subscriptions
-
-    //public bool SubscribeWordWithChoiceList(string text, string choiceList, dynamic callback)
-    //{
-    //    try
-    //    {
-    //        if (_parameterCallbacks.ContainsKey(text))
-    //        {
-    //            return false;
-    //        }
-    //        _parameterCallbacks[text] = callback;
-
-    //        var gb = new GrammarBuilder(text);
-
-    //        gb.Append(ChoiceVarGet(choiceList));
-            
-
-    //        var g = new Grammar(gb) {Priority = 127};
-
-    //        _recognizer.LoadGrammar(g);
-    //        _grammarCallbacks[text] = callback;
-    //        return true;
-    //    }
-    //    catch
-    //    {
-    //        return false;
-    //    }
-    //}
-
-    //public bool SubscribeWord(string text, dynamic callback)
-    //{
-    //    try
-    //    {
-    //        if (_wordCallbacks.ContainsKey(text))
-    //        {
-    //            return false;
-    //        }
-    //        _wordCallbacks[text] = callback;
-
-    //        var g = new Grammar(new GrammarBuilder(text));
-    //        g.Name = text;
-    //        _recognizer.LoadGrammar(g);
-    //        _grammarCallbacks[text] = callback;
-    //        return true;
-    //    }
-    //    catch
-    //    {
-    //        return false;
-    //    }
-    //}
-
-    public bool SubscribeVolume(dynamic callback)
-    {
-        try
-        {
-            _volumeCallback = callback;
-            _recognizer.AudioLevelUpdated += Recognizer_AudioLevelUpdated;
-            StartRecognizer();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-    #endregion
-
-    public void StartRecognizer()
-    {
-        if (!_recognizerRunning)
-        {
-            // Start asynchronous, continuous speech recognition.
-            _recognizer.RecognizeAsync(RecognizeMode.Multiple);
-            _recognizerRunning = true;
-        }
-    }
-           
-    // Handle the SpeechRecognized event.
-    private void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
-    {
-        var name = e.Result.Grammar.Name;
-        var words = new string[e.Result.Words.Count];
-        for (var i = 0; i < e.Result.Words.Count; i++)
-        {
-            words[i] = e.Result.Words[i].Text;
-        }
-
-        _grammarCallbacks[name](words);
-    }
-
-    // Write the audio level to the console when the AudioLevelUpdated event is raised.
-    private void Recognizer_AudioLevelUpdated(object sender, AudioLevelUpdatedEventArgs e)
-    {
-        if (e.AudioLevel != _volumeLevel)
-        {
-            _volumeLevel = e.AudioLevel;
-            _volumeCallback(_volumeLevel);
-        }
-    }
-
 }
 

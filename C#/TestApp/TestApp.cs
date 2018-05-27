@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Speech.Recognition;
 
 namespace TestApp
 {
@@ -10,82 +11,65 @@ namespace TestApp
     {
         static void Main(string[] args)
         {
-            var hv = new HotVoice();
+            var hv = new HotVoice.HotVoice();
             hv.Initialize();
-
-            hv.GrammarVarAddChoiceVar("percentPhrase", "Percent");
-            hv.GrammarVarAddString("percentPhrase", "percent");
-
-            hv.ChoiceVarAdd("fractionChoices", "quarter, half, three-quarters, full");
-            hv.GrammarVarAddChoiceVar("fractionPhrase", "fractionChoices");
-
-            hv.GrammarVarAddString("flapsCommand", "flaps");
-            hv.GrammarVarAddGrammarVars("flapsCommand", "percentPhrase, fractionPhrase");
             
-            hv.GrammarVarLoad("flapsCommand", new Action<string[]>((values) => {
-                Console.WriteLine($"Flaps: {values[1]}");
+            // ----------------------- Volume Demo --------------------
+            var volumeGrammar = hv.Factory.CreateGrammar();
+            volumeGrammar.AppendString("Volume");
+
+            var percentPhrase = hv.Factory.CreateGrammar();
+            var percentChoices = hv.GetChoices("Percent");
+            percentPhrase.AppendChoices(percentChoices);
+            percentPhrase.AppendString("percent");
+
+            var fractionPhrase = hv.Factory.CreateGrammar();
+            var fractionChoices = hv.Factory.CreateChoices("quarter, half, three-quarters, full");
+            fractionPhrase.AppendChoices(fractionChoices);
+
+            volumeGrammar.AppendGrammars(percentPhrase, fractionPhrase);
+
+            hv.LoadGrammar(volumeGrammar, "Volume", new Action<string, string[]>((name, values) =>
+            {
+                Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
 
-            // Contact Dialler demo
-            hv.ChoiceVarAdd("females", "Anne, Mary");
-            hv.GrammarVarAddChoiceVar("callFemales", "females");
-            hv.GrammarVarAddString("callFemales", "on her");
+            // ---------------------- Call Contact Demo ----------------
+            var contactGrammar = hv.Factory.CreateGrammar();
+            contactGrammar.AppendString("Call");
 
-            hv.ChoiceVarAdd("males", "James, Sam");
-            hv.GrammarVarAddChoiceVar("callMales", "males");
-            hv.GrammarVarAddString("callMales", "on his");
+            var femaleChoices = hv.Factory.CreateChoices("Anne, Mary");
+            var femalePhrase = hv.Factory.CreateGrammar();
+            femalePhrase.AppendChoices(femaleChoices);
+            femalePhrase.AppendString("on her");
 
-            // Create a Choices object that contains a set of alternative phone types.
-            hv.ChoiceVarAdd("phoneTypes", "cell, home, work");
+            var maleChoices = hv.Factory.CreateChoices("James, Sam");
+            var malePhrase = hv.Factory.CreateGrammar();
+            malePhrase.AppendChoices(maleChoices);
+            malePhrase.AppendString("on his");
 
+            contactGrammar.AppendGrammars(malePhrase, femalePhrase);
 
-            // Construct the phrase.
-            hv.GrammarVarAddString("CallGrammar", "Call");
-            hv.GrammarVarAddGrammarVars("CallGrammar", "callFemales, callMales");
-            hv.GrammarVarAddChoiceVar("CallGrammar", "phoneTypes");
-            hv.GrammarVarAddString("CallGrammar", "phone");
+            var phoneChoices = hv.Factory.CreateChoices("cell, home, work");
+            contactGrammar.AppendChoices(phoneChoices);
 
-            hv.GrammarVarLoad("CallGrammar", new Action<string[]>((values) => {
-                Console.WriteLine($"Grammar: {values[0]}");
+            contactGrammar.AppendString("phone");
+
+            hv.LoadGrammar(contactGrammar, "CallContact", new Action<string, string[]>((name, values) =>
+            {
+                Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
-
-
-
-            hv.StartRecognizer();
-            //hv.SubscribeWordWithChoiceList("flaps", "Percent", new Action<string[]>((values) => {
-            //    Console.WriteLine($"flaps: {values[0]}, {values[1]}");
-            //}));
-
-
-            //hv.ChoiceVarAdd("udlr", new[] {"Up", "Down", "Left", "Right"});
-            //hv.ChoiceVarAdd("Apps", "Notepad, Command Prompt");
-            //hv.SubscribeWordWithChoiceList("flaps", "Percent", new Action<string>((value) => {
-            //    Console.WriteLine($"flaps: {value}");
-            //}));
-
-            //hv.SubscribeWordWithChoiceList("Launch", "Apps", new Action<string>((value) =>
-            //{
-            //    Console.WriteLine($"Launch: *{value}*");
-            //}));
-
-            //hv.SubscribeWord("test", new Action(() =>
-            //{
-            //    Console.WriteLine("Test");
-            //}));
-
-            //hv.SubscribeWord("one", new Action(() => {
-            //    Console.WriteLine("One");
-            //}));
 
             //hv.SubscribeVolume(new Action<int>((value) => {
             //    Console.WriteLine("Volume: " + value);
             //}));
+
+            hv.StartRecognizer();
 
             while (true)
             {
                 Console.ReadLine();
             }
         }
-
     }
 }

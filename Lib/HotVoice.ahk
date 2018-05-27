@@ -1,51 +1,48 @@
 Class HotVoice {
-	;~ SubscribeWord(word, cb){
-		;~ this.hv.SubscribeWord(word, cb)
-	;~ }
+	_grammarCallbacks := {}
 	
-	;~ SubscribeWordWithChoiceList(word, choiceList, cb){
-		;~ this.hv.SubscribeWordWithChoiceList(word, choiceList, cb)
-	;~ }
-	
-	GrammarVarGet(name){
-		return this.hv.GrammarVarGet(name)
-	}
-	
-	GrammarVarLoad(grammarName, callback){
-		return this.hv.GrammarVarLoad(grammarName, callback)
-	}
-	
-	GrammarVarAddString(name, str){
-		return this.hv.GrammarVarAddString(name, str)
-	}
-	
-	GrammarVarAddGrammarVars(grammarName, grammarVars){
-		return this.hv.GrammarVarAddGrammarVars(grammarName, grammarVars)
-	}
-	
-	GrammarVarAddChoiceVar(grammarName, choiceVar){
-		return this.hv.GrammarVarAddChoiceVar(grammarName, choiceVar)
-	}
-	
-	ChoiceVarAdd(name, choiceString){
-		return this.hv.ChoiceVarAdd(name, choiceString)
+	GetChoices(name){
+		return this.Instance.GetChoices(name)
 	}
 	
 	SubscribeVolume(cb){
-		return this.hv.SubscribeVolume(cb)
+		return this.Instance.SubscribeVolume(cb)
+	}
+	
+	LoadGrammar(grammar, name, callback){
+		if (this._grammarCallbacks.HasKey(nanme)){
+			throw new Exception("Grammar " name " already exists")
+		}
+		this._grammarCallbacks[name] := callback
+		fn := this._OnGrammarCallback.Bind(this)
+		return this.Instance.LoadGrammar(grammar, name, fn)
 	}
 	
 	Initialize(id){
-		c := this.hv.GetRecognizerCount()
+		c := this.Instance.GetRecognizerCount()
 		if (id > c){
 			MsgBox % "No Such ID " c
 			ExitApp
 		}
-		return this.hv.Initialize(id)
+		return this.Instance.Initialize(id)
 	}
 	
 	StartRecognizer(){
-		return this.hv.StartRecognizer()
+		return this.Instance.StartRecognizer()
+	}
+	
+	GetWords(arr){
+		max := arr.MaxIndex()
+		ret := []
+		Loop % max + 1 {
+			ret.Push(arr[A_Index - 1])
+		}
+		return ret
+	}
+	
+	_OnGrammarCallback(grammarName, wordArr){
+		words := this.GetWords(wordArr)
+		this._grammarCallbacks[grammarName].Call(grammarName, words)
 	}
 	
 	__New(){
@@ -63,7 +60,7 @@ Class HotVoice {
 		asm := CLR_LoadLibrary(dllFile)
 		
 		try {
-			this.hv := asm.CreateInstance("HotVoice")
+			this.Instance := asm.CreateInstance("HotVoice.HotVoice")
 		}
 		catch {
 			MsgBox % dllName " failed to load`n`n" hintMessage
@@ -71,7 +68,7 @@ Class HotVoice {
 		}
 
 		; Check the HotVoice DLL loaded OK and we can speak to it
-		if (this.hv.OkCheck() != "OK"){
+		if (this.Instance.OkCheck() != "OK"){
 			MsgBox % "Could not communicate with " dllName "`n" hintMessage
 			ExitApp
 		}
@@ -80,15 +77,17 @@ Class HotVoice {
 			MsgBox % "No Recognizers found"
 			ExitApp
 		}
+		
+		this.Factory := this.Instance.Factory
 	}
 	
 	BuildRecognizerList(){
 		this.RecognizerList := []
 		; Get list of Speech Recognizers, populate GUI
-		c := this.hv.GetRecognizerCount()
+		c := this.Instance.GetRecognizerCount()
 		Loop % c {
 			i := A_Index - 1
-			n := this.hv.GetRecognizerName(i)
+			n := this.Instance.GetRecognizerName(i)
 			this.RecognizerList.Push({ID: i, Name: n})
 		}
 	}
