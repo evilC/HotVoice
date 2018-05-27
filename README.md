@@ -62,6 +62,48 @@ hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))
 hv.StartRecognizer()
 ```
 
+#### Function Reference
+##### NewChoices
+Creates a new Choices object from a comma-separated string
+`Choices NewChoices(string choiceListStr)`  
+eg `choices := hv.NewChoices("Up, Down, Left, Right")`  
+
+##### NewGrammar
+Creates a new, empty Grammar Object
+`GrammarObj NewGrammar()`  
+eg `grammarObj := hv.NewGrammar()`  
+
+#### GetChoices(name)
+Gets a Choices object from HotVoice's store of choices objects.  
+By default, this is empty execpt for the `Percent` Choices object, which contains the numbers `0-100`  
+`Choices GetChoices(string name)`  
+eg `percentChoices := hv.GetChoices("Percent")`
+
+##### SetChoices(name)
+Adds a Choices object to HotVoice's store of choices objects.  
+`void SetChoices(string name, Choices choices)`  
+eg `percentChoices := hv.SetChoices("Directions", hv.NewChoices("Up, Down, Left, Right"))`  
+
+##### LoadGrammar
+Loads a GrammarObject into the Recognizer and specifies which function to call when it is triggered.  
+`void LoadGrammar(GrammarObject g, string name, BoundFunc callback)`  
+eg `hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))`  
+
+##### Initialize
+Loads a Recognizer  
+`void Initialize(int recognizerId = 0)`  
+eg `hv.Initialize()`  
+
+##### StartRecognizer  
+Starts the Recognizer  
+`void StartRecognizer()`  
+eg `hv.StartRecognizer()`  
+
+#### Object Reference  
+##### GrammarObject
+##### ChoicesObject
+
+
 
 # Developers
 This **ONLY APPLIES** if you want to work with the C# code that powers HotVoice.  
