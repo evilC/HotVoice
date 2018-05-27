@@ -33,16 +33,18 @@ Choices objects represent a series of optional words. As in the above example, `
 Grammar objects are the primary building blocks of HotVoice. They can hold either single words, or choices objects, or even other Grammar objects.
 #### Initializing HotVoice
 A HotVoice script must do the following:  
-1. Load the HotVoice Library
-```
-; Load the HotVoice Library
-#include Lib\HotVoice.ahk
-```
-2. Create a new HotVoice class
+
+1. Load the HotVoice Library  
+`#include Lib\HotVoice.ahk`  
+
+2. Create a new HotVoice class  
+
 ```
 hv := new HotVoice()
 ```
-3. Add at least one Grammar
+
+3. Add at least one Grammar  
+
 ```
 ; Create a new Grammar
 testGrammar := hv.NewGrammar()
@@ -52,8 +54,10 @@ testGrammar.AppendString("Test")
 
 ; Load the Grammar
 hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))
-```
-4. Start the Recognizer
+```  
+
+4. Start the Recognizer  
+
 ```
 hv.StartRecognizer()
 ```
