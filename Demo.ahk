@@ -4,6 +4,16 @@
 ; Load the HotVoice Library
 #include Lib\HotVoice.ahk
 
+; Create a new HotVoice class
+hv := new HotVoice()
+recognizers := hv.GetRecognizerList()
+
+Gui, Add, Text, xm w600 Center, Available Recognizers
+Gui, Add, ListView, xm w600 r5, ID|Name
+Loop % recognizers.Length(){
+	rec := recognizers[A_index]
+	LV_Add(, rec.Id, rec.Name)
+}
 Gui, Add, Text, xm w600 Center, Available Commands
 Gui, Add, ListView, xm w600 r10, Name|Grammar
 Gui, Add, Text, xm Center w600, Mic Volume
@@ -12,8 +22,6 @@ Gui, Add, Text, xm Center w600, Output
 Gui, Add, Edit, hwndhOutput w600 r5
 LV_ModifyCol(1, 80)
 
-; Create a new HotVoice class
-hv := new HotVoice()
 
 ; Initialize HotVoice and tell it what ID Recognizer to use
 hv.Initialize(0)
