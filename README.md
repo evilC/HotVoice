@@ -69,7 +69,7 @@ Creates a new Choices object from a comma-separated string
 eg `choices := hv.NewChoices("Up, Down, Left, Right")`  
 
 ##### NewGrammar
-Creates a new, empty Grammar Object
+Creates a new, empty Grammar Object  
 `GrammarObj NewGrammar()`  
 eg `grammarObj := hv.NewGrammar()`  
 
@@ -102,12 +102,12 @@ eg `hv.StartRecognizer()`
 #### Object Reference  
 ##### GrammarObject
 ###### GetPhrases
-Gets a human-readable string that describes the phrasology that this Grammar supports
+Gets a human-readable string that describes the phrasology that this Grammar supports  
 `string GetPhrases()`  
 eg `phrases := grammarObj.GetPhrases()`  
 
 ###### AppendString
-Adds a word or words to a GrammarObject
+Adds a word or words to a GrammarObject  
 `void AppendString(string text)`  
 eg `grammarObj.AppendString("Hello")`  
 
