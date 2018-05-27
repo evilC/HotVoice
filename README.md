@@ -101,9 +101,25 @@ eg `hv.StartRecognizer()`
 
 #### Object Reference  
 ##### GrammarObject
-##### ChoicesObject
+###### GetPhrases
+Gets a human-readable string that describes the phrasology that this Grammar supports
+`string GetPhrases()`  
+eg `phrases := grammarObj.GetPhrases()`  
 
+###### AppendString
+Adds a word or words to a GrammarObject
+`void AppendString(string text)`  
+eg `grammarObj.AppendString("Hello")`  
 
+###### AppendChoices
+Adds a ChoicesObject to this GrammarObject  
+`void AppendChoices(Choices choices)`  
+eg `grammarObj.AppendChoices(choicesObj)`  
+
+###### AppendGrammars
+Adds up to 10 GrammarObjects to this GrammarObject  
+`void AppendGrammars(GrammarObject g1, ... , GrammarObject g10)`  
+eg `grammarObj1.AppendGrammars(grammarObj2, grammarObj3)`  
 
 # Developers
 This **ONLY APPLIES** if you want to work with the C# code that powers HotVoice.  
