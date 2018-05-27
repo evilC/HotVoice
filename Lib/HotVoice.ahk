@@ -9,6 +9,14 @@ Class HotVoice {
 		return this.Instance.SubscribeVolume(cb)
 	}
 	
+	NewGrammar(){
+		return this.Instance.NewGrammar()
+	}
+	
+	NewChoices(choiceListStr){
+		return this.Instance.NewChoices(choiceListStr)
+	}
+	
 	LoadGrammar(grammar, name, callback){
 		if (this._grammarCallbacks.HasKey(nanme)){
 			throw new Exception("Grammar " name " already exists")
@@ -77,8 +85,6 @@ Class HotVoice {
 			MsgBox % "No Recognizers found"
 			ExitApp
 		}
-		
-		this.Factory := this.Instance.Factory
 	}
 	
 	BuildRecognizerList(){

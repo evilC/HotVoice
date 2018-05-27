@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using Microsoft.Speech.Recognition;
 
-namespace HotVoice.Factories
+namespace HotVoice
 {
-    public class GrammarFactory
+    public partial class HotVoice
     {
         public HotGrammar NewGrammar()
         {

@@ -62,10 +62,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Factories\HotGrammar.cs" />
+    <Compile Include="HotGrammar.cs" />
     <Compile Include="HotVoice.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>copy "$(TargetDir)*.dll" "$(SolutionDir)..\Lib"</PostBuildEvent>

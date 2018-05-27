@@ -13,7 +13,7 @@ hv := new HotVoice()
 hv.Initialize(0)
 
 ; Create a new Grammar
-testGrammar := hv.Factory.NewGrammar()
+testGrammar := hv.NewGrammar()
 
 ; Add the word "Test" to it
 testGrammar.AppendString("Test")

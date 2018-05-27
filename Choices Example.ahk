@@ -13,13 +13,13 @@ hv := new HotVoice()
 hv.Initialize(0)
 
 ; Create a new Grammar
-testGrammar := hv.Factory.NewGrammar()
+testGrammar := hv.NewGrammar()
 
 ; Add the word "Test" to it
 testGrammar.AppendString("Test")
 
 ; Create a new Choices object with four direction choices
-directionChoices := hv.Factory.NewChoices("up, down, left, right")
+directionChoices := hv.NewChoices("up, down, left, right")
 
 ; Add the direction choices to the Grammar
 testGrammar.AppendChoices(directionChoices)

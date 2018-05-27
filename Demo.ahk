@@ -19,16 +19,16 @@ hv := new HotVoice()
 hv.Initialize(0)
 
 ; -------- Volume Command ------------
-volumeGrammar := hv.Factory.NewGrammar()
+volumeGrammar := hv.NewGrammar()
 volumeGrammar.AppendString("Volume")
 
-percentPhrase := hv.Factory.NewGrammar()
+percentPhrase := hv.NewGrammar()
 percentChoices := hv.GetChoices("Percent")
 percentPhrase.AppendChoices(percentChoices)
 percentPhrase.AppendString("percent")
 
-fractionPhrase := hv.Factory.NewGrammar()
-fractionChoices := hv.Factory.NewChoices("quarter, half, three-quarters, full")
+fractionPhrase := hv.NewGrammar()
+fractionChoices := hv.NewChoices("quarter, half, three-quarters, full")
 fractionPhrase.AppendChoices(fractionChoices)
 
 volumeGrammar.AppendGrammars(fractionPhrase, percentPhrase)
@@ -36,22 +36,22 @@ volumeGrammar.AppendGrammars(fractionPhrase, percentPhrase)
 LV_Add(, "Volume", hv.LoadGrammar(volumeGrammar, "Volume", Func("Volume")))
 
 ; -------- Call Contact Command -------------
-contactGrammar := hv.Factory.NewGrammar()
+contactGrammar := hv.NewGrammar()
 contactGrammar.AppendString("Call")
 
-femaleGrammar := hv.Factory.NewGrammar()
-femaleChoices := hv.Factory.NewChoices("Anne, Mary")
+femaleGrammar := hv.NewGrammar()
+femaleChoices := hv.NewChoices("Anne, Mary")
 femaleGrammar.AppendChoices(femaleChoices)
 femaleGrammar.AppendString("on-her")
 
-maleGrammar := hv.Factory.NewGrammar()
-maleChoices := hv.Factory.NewChoices("James, Sam")
+maleGrammar := hv.NewGrammar()
+maleChoices := hv.NewChoices("James, Sam")
 maleGrammar.AppendChoices(maleChoices)
 maleGrammar.AppendString("on-his")
 
 contactGrammar.AppendGrammars(maleGrammar, femaleGrammar)
 
-phoneChoices := hv.Factory.NewChoices("cell, home, work")
+phoneChoices := hv.NewChoices("cell, home, work")
 contactGrammar.AppendChoices(phoneChoices)
 contactGrammar.AppendString("phone")
 

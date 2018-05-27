@@ -15,16 +15,16 @@ namespace TestApp
             hv.Initialize();
             
             // ----------------------- Volume Demo --------------------
-            var volumeGrammar = hv.Factory.NewGrammar();
+            var volumeGrammar = hv.NewGrammar();
             volumeGrammar.AppendString("Volume");
 
-            var percentPhrase = hv.Factory.NewGrammar();
+            var percentPhrase = hv.NewGrammar();
             var percentChoices = hv.GetChoices("Percent");
             percentPhrase.AppendChoices(percentChoices);
             percentPhrase.AppendString("percent");
 
-            var fractionPhrase = hv.Factory.NewGrammar();
-            var fractionChoices = hv.Factory.NewChoices("quarter, half, three-quarters, full");
+            var fractionPhrase = hv.NewGrammar();
+            var fractionChoices = hv.NewChoices("quarter, half, three-quarters, full");
             fractionPhrase.AppendChoices(fractionChoices);
 
             volumeGrammar.AppendGrammars(percentPhrase, fractionPhrase);
@@ -35,22 +35,22 @@ namespace TestApp
             }));
 
             // ---------------------- Call Contact Demo ----------------
-            var contactGrammar = hv.Factory.NewGrammar();
+            var contactGrammar = hv.NewGrammar();
             contactGrammar.AppendString("Call");
 
-            var femaleChoices = hv.Factory.NewChoices("Anne, Mary");
-            var femalePhrase = hv.Factory.NewGrammar();
+            var femaleChoices = hv.NewChoices("Anne, Mary");
+            var femalePhrase = hv.NewGrammar();
             femalePhrase.AppendChoices(femaleChoices);
             femalePhrase.AppendString("on her");
 
-            var maleChoices = hv.Factory.NewChoices("James, Sam");
-            var malePhrase = hv.Factory.NewGrammar();
+            var maleChoices = hv.NewChoices("James, Sam");
+            var malePhrase = hv.NewGrammar();
             malePhrase.AppendChoices(maleChoices);
             malePhrase.AppendString("on his");
 
             contactGrammar.AppendGrammars(malePhrase, femalePhrase);
 
-            var phoneChoices = hv.Factory.NewChoices("cell, home, work");
+            var phoneChoices = hv.NewChoices("cell, home, work");
             contactGrammar.AppendChoices(phoneChoices);
 
             contactGrammar.AppendString("phone");

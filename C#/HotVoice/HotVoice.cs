@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using HotVoice.Factories;
 using Microsoft.Speech.Recognition;
 
 // Get Started with Speech Recognition (Microsoft.Speech):
@@ -18,13 +17,7 @@ using Microsoft.Speech.Recognition;
 
 namespace HotVoice
 {
-    public class LoadedGrammar
-    {
-        public HotGrammar HotGrammar { get; set; }
-        public dynamic Callback { get; set; }
-    }
-
-    public class HotVoice
+    public partial class HotVoice
     {
         private SpeechRecognitionEngine _recognizer;
         private dynamic _volumeCallback;
@@ -33,8 +26,6 @@ namespace HotVoice
         private readonly List<RecognizerInfo> _recognizers;
         private readonly  Dictionary<string, Choices> _choicesDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, LoadedGrammar> _loadedHotGrammarDictionary = new Dictionary<string, LoadedGrammar>(StringComparer.OrdinalIgnoreCase);
-
-        public GrammarFactory Factory { get; } = new GrammarFactory();
 
         #region Startup
         public HotVoice()
@@ -202,5 +193,12 @@ namespace HotVoice
         }
     #endregion
     }
+
+    public class LoadedGrammar
+    {
+        public HotGrammar HotGrammar { get; set; }
+        public dynamic Callback { get; set; }
+    }
+
 }
 
