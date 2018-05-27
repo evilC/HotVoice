@@ -1,18 +1,38 @@
 Class HotVoice {
-	SubscribeWord(word, cb){
-		this.hv.SubscribeWord(word, cb)
+	;~ SubscribeWord(word, cb){
+		;~ this.hv.SubscribeWord(word, cb)
+	;~ }
+	
+	;~ SubscribeWordWithChoiceList(word, choiceList, cb){
+		;~ this.hv.SubscribeWordWithChoiceList(word, choiceList, cb)
+	;~ }
+	
+	GrammarVarGet(name){
+		return this.hv.GrammarVarGet(name)
 	}
 	
-	SubscribeWordWithChoiceList(word, choiceList, cb){
-		this.hv.SubscribeWordWithChoiceList(word, choiceList, cb)
+	GrammarVarLoad(grammarName, callback){
+		return this.hv.GrammarVarLoad(grammarName, callback)
 	}
 	
-	AddChoiceList(name, choiceArray){
-		this.hv.AddChoiceList(name, choiceArray)
+	GrammarVarAddString(name, str){
+		return this.hv.GrammarVarAddString(name, str)
+	}
+	
+	GrammarVarAddGrammarVars(grammarName, grammarVars){
+		return this.hv.GrammarVarAddGrammarVars(grammarName, grammarVars)
+	}
+	
+	GrammarVarAddChoiceVar(grammarName, choiceVar){
+		return this.hv.GrammarVarAddChoiceVar(grammarName, choiceVar)
+	}
+	
+	ChoiceVarAdd(name, choiceString){
+		return this.hv.ChoiceVarAdd(name, choiceString)
 	}
 	
 	SubscribeVolume(cb){
-		this.hv.SubscribeVolume(cb)
+		return this.hv.SubscribeVolume(cb)
 	}
 	
 	Initialize(id){
@@ -21,7 +41,11 @@ Class HotVoice {
 			MsgBox % "No Such ID " c
 			ExitApp
 		}
-		this.hv.Initialize(id)
+		return this.hv.Initialize(id)
+	}
+	
+	StartRecognizer(){
+		return this.hv.StartRecognizer()
 	}
 	
 	__New(){

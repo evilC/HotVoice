@@ -17,13 +17,15 @@ using Microsoft.Speech.Recognition;
 public class HotVoice
 {
     private SpeechRecognitionEngine _recognizer;
-    private readonly Dictionary<string, dynamic> _wordCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, dynamic> _parameterCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
+    //private readonly Dictionary<string, dynamic> _wordCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
+    //private readonly Dictionary<string, dynamic> _parameterCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
     private dynamic _volumeCallback;
     private int _volumeLevel = 0;
     private bool _recognizerRunning;
     private readonly List<RecognizerInfo> _recognizers;
-    private readonly  Dictionary<string, Choices> _choiceDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
+    private readonly  Dictionary<string, Choices> _choiceVarDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, GrammarBuilder> _grammarBuilderDictionary = new Dictionary<string, GrammarBuilder>(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, dynamic> _grammarCallbacks = new Dictionary<string, dynamic>(StringComparer.OrdinalIgnoreCase);
 
     public HotVoice()
     {
@@ -31,7 +33,7 @@ public class HotVoice
         var percentileChoices = new Choices();
         for (var i = 0; i <= 100; i++)
             percentileChoices.Add(i.ToString());
-        _choiceDictionary.Add("Percent", percentileChoices);
+        _choiceVarDictionary.Add("Percent", percentileChoices);
     }
 
     public string OkCheck()
@@ -51,6 +53,80 @@ public class HotVoice
         // Configure the input to the speech recognizer.
         _recognizer.SetInputToDefaultAudioDevice();
     }
+
+    #region Grammar Vars & Choice Vars
+    public GrammarBuilder GrammarVarGet(string name)
+    {
+        if (!_grammarBuilderDictionary.ContainsKey(name))
+        {
+            _grammarBuilderDictionary.Add(name, new GrammarBuilder());
+        }
+
+        return _grammarBuilderDictionary[name];
+    }
+
+    public string GrammarVarLoad(string grammarName, dynamic callback)
+    {
+        var gb = GrammarVarGet(grammarName);
+        var g = new Grammar(gb);
+        _grammarCallbacks.Add(grammarName, callback);
+        g.Name = grammarName;
+        _recognizer.LoadGrammar(g);
+        return gb.DebugShowPhrases;
+    }
+
+    public void GrammarVarAddString(string name, string str)
+    {
+        GrammarVarGet(name).Append(str);
+    }
+
+    public void GrammarVarAddGrammarVars(string grammarName, string grammarVars)
+    {
+        var choices = GrammarVarListToChoices(grammarVars);
+        GrammarVarGet(grammarName).Append(choices);
+    }
+
+    public void GrammarVarAddChoiceVar(string grammarName, string choiceVar)
+    {
+        GrammarVarGet(grammarName).Append(ChoiceVarGet(choiceVar));
+    }
+
+    public GrammarBuilder[] GrammarVarListToGrammarBuilderArray(string grammarBuilderVarList)
+    {
+        var grammarVars = StringToArray(grammarBuilderVarList);
+        var grammarBuilderArray = new GrammarBuilder[grammarVars.Length];
+        for (var i = 0; i < grammarVars.Length; i++)
+        {
+            grammarBuilderArray[i] = GrammarVarGet(grammarVars[i]);
+        }
+
+        return grammarBuilderArray;
+    }
+
+    public Choices GrammarVarListToChoices(string grammarBuilderListStr)
+    {
+        //var names = StringToArray(grammarBuilderVarList);
+        return new Choices(GrammarVarListToGrammarBuilderArray(grammarBuilderListStr));
+    }
+
+    public void ChoiceVarAdd(string name, string choiceString)
+    {
+        _choiceVarDictionary.Add(name, new Choices(StringToArray(choiceString)));
+    }
+
+    private Choices ChoiceVarGet(string name)
+    {
+        if (!_choiceVarDictionary.ContainsKey(name))
+        {
+            throw new Exception($"Could not find Choice Var {name}");
+        }
+
+        return _choiceVarDictionary[name];
+    }
+
+    #endregion
+
+    #region Recognizers
 
     public int GetRecognizerCount()
     {
@@ -82,78 +158,61 @@ public class HotVoice
         return dict;
     }
 
-    public string Test(string[] blah)
-    {
-        return "OK";
-    }
+    #endregion
 
-//    public void AddChoiceList(string name, string[] choiceArray)
-    public void AddChoiceList(string name, string choiceString)
-    {
-        var parts = choiceString.Split(',').Select(p => p.Trim()).ToArray();
+    // I don't know how to pass an array of strings from AHK to C#, so for now, just use comma-separated strings
+    public string[] StringToArray(string choiceString) => choiceString.Split(',').Select(p => p.Trim()).ToArray();
 
-        _choiceDictionary.Add(name, new Choices(parts));
-    }
+    #region Subscriptions
 
-    private Choices GetChoiceList(string name)
-    {
-        if (!_choiceDictionary.ContainsKey(name))
-        {
-            throw new Exception($"Could not find Choice List {name}");
-        }
+    //public bool SubscribeWordWithChoiceList(string text, string choiceList, dynamic callback)
+    //{
+    //    try
+    //    {
+    //        if (_parameterCallbacks.ContainsKey(text))
+    //        {
+    //            return false;
+    //        }
+    //        _parameterCallbacks[text] = callback;
 
-        return _choiceDictionary[name];
-    }
+    //        var gb = new GrammarBuilder(text);
 
-    public bool SubscribeWordWithChoiceList(string text, string choiceList, dynamic callback)
-    {
-        try
-        {
-            if (_parameterCallbacks.ContainsKey(text))
-            {
-                return false;
-            }
-            _parameterCallbacks[text] = callback;
-
-            var gb = new GrammarBuilder(text);
-
-            gb.Append(GetChoiceList(choiceList));
+    //        gb.Append(ChoiceVarGet(choiceList));
             
 
-            var g = new Grammar(gb) {Priority = 127};
+    //        var g = new Grammar(gb) {Priority = 127};
 
-            _recognizer.LoadGrammar(g);
+    //        _recognizer.LoadGrammar(g);
+    //        _grammarCallbacks[text] = callback;
+    //        return true;
+    //    }
+    //    catch
+    //    {
+    //        return false;
+    //    }
+    //}
 
-            StartRecognizer();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    //public bool SubscribeWord(string text, dynamic callback)
+    //{
+    //    try
+    //    {
+    //        if (_wordCallbacks.ContainsKey(text))
+    //        {
+    //            return false;
+    //        }
+    //        _wordCallbacks[text] = callback;
 
-    public bool SubscribeWord(string text, dynamic callback)
-    {
-        try
-        {
-            if (_wordCallbacks.ContainsKey(text))
-            {
-                return false;
-            }
-            _wordCallbacks[text] = callback;
-
-            var g = new Grammar(new GrammarBuilder(text));
-            _recognizer.LoadGrammar(g);
-
-            StartRecognizer();
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
-    }
+    //        var g = new Grammar(new GrammarBuilder(text));
+    //        g.Name = text;
+    //        _recognizer.LoadGrammar(g);
+    //        _grammarCallbacks[text] = callback;
+    //        return true;
+    //    }
+    //    catch
+    //    {
+    //        return false;
+    //    }
+    //}
 
     public bool SubscribeVolume(dynamic callback)
     {
@@ -169,8 +228,9 @@ public class HotVoice
             return false;
         }
     }
+    #endregion
 
-    private void StartRecognizer()
+    public void StartRecognizer()
     {
         if (!_recognizerRunning)
         {
@@ -183,25 +243,14 @@ public class HotVoice
     // Handle the SpeechRecognized event.
     private void Recognizer_SpeechRecognized(object sender, SpeechRecognizedEventArgs e)
     {
-        var word = e.Result.Words[0].Text;
-        if (e.Result.Words.Count > 1)
+        var name = e.Result.Grammar.Name;
+        var words = new string[e.Result.Words.Count];
+        for (var i = 0; i < e.Result.Words.Count; i++)
         {
-            var p = "";
-            var max = e.Result.Words.Count;
-            for (var i = 1; i < max; i++)
-            {
-                p += e.Result.Words[i].Text;
-                if (i < max - 1)
-                {
-                    p += " ";
-                }
-            }
-            _parameterCallbacks[word](p);
+            words[i] = e.Result.Words[i].Text;
         }
-        else
-        {
-            _wordCallbacks[word]();
-        }
+
+        _grammarCallbacks[name](words);
     }
 
     // Write the audio level to the console when the AudioLevelUpdated event is raised.
