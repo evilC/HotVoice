@@ -1,4 +1,4 @@
-; This script demonstrates a single initial word ("Test")
+; This script demonstrates a single initial word ("Test"), followed by a choice of "Up", "Down", "Left" or "Right"
 
 #SingleInstance force
 #Persistent ; You will need this if your script creates no hotkeys or has no GUI
@@ -18,6 +18,12 @@ testGrammar := hv.Factory.NewGrammar()
 ; Add the word "Test" to it
 testGrammar.AppendString("Test")
 
+; Create a new Choices object with four direction choices
+directionChoices := hv.Factory.NewChoices("up, down, left, right")
+
+; Add the direction choices to the Grammar
+testGrammar.AppendChoices(directionChoices)
+
 ; Load the Grammar
 hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))
 
@@ -26,5 +32,5 @@ hv.StartRecognizer()
 return
 
 MyFunc(grammarName, words){
-	ToolTip % "Command: " grammarName " was triggered @ " A_TickCount " with " words.Length() " words"
+	ToolTip % "Command: " grammarName " " words[2]
 }

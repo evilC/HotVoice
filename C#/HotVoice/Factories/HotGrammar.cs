@@ -5,7 +5,7 @@ namespace HotVoice.Factories
 {
     public class GrammarFactory
     {
-        public HotGrammar CreateGrammar()
+        public HotGrammar NewGrammar()
         {
             return new HotGrammar();
         }
@@ -15,7 +15,7 @@ namespace HotVoice.Factories
         /// </summary>
         /// <param name="choiceListStr"></param>
         /// <returns></returns>
-        public Choices CreateChoices(string choiceListStr)
+        public Choices NewChoices(string choiceListStr)
         {
             return new Choices(StringToArray(choiceListStr));
         }
