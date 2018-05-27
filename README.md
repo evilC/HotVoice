@@ -14,7 +14,7 @@ eg `MSSpeech_SR_en-US_TELE.msi`
 There are various ways to do this, but I find the simplest is to run the powershell command `Get-ChildItem -Path '.' -Recurse | Unblock-File` in the Hotvoice Folder.  
 5. Run the Demo script and make sure it works for you.  
 It should look something like this:  
-![](https://i.imgur.com/XI0sqC8.png) 
+![](https://i.imgur.com/FnVTizO.png) 
 
 "Recognizers" are basically Language Packs. Ordering seems pretty arbitrary, but the "Lightweight" one seems present on all machines and does not seem to work. Luckily, it seems that any other language pack that is installed will be `ID 0`, so for now I just hard-code the Demo to use ID 0. You can tweak it in the code though. 
 The `Mic Volume` slider should move when you speak.  
