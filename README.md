@@ -3,7 +3,7 @@
 Use your voice as a Hotkey in AutoHotkey!  
 
 ## Using HotVoice in your scripts
-### Inital Setup
+### Initial Setup
 1. Install the [Microsoft Speech Platform Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=27225)  
 You will need either x86 or x64, depending on what version of AHK you run. No harm in installing both, just to be sure.  
 2. Install at least one [Language Pack](https://www.microsoft.com/en-us/download/details.aspx?id=27224)  
@@ -20,6 +20,44 @@ It should look something like this:
 The `Mic Volume` slider should move when you speak.  
 HotVoice uses the "Default Recording Device" that is configured in Windows.  
 6. See the `Simple Example.ahk` for the simplest possible script. More documentation will be forthcoming, sorry...
+
+### Using the Library
+#### Grammar and Choices objects
+HotVoice uses these two types of object to build up commands.  
+Throughout this documentation, the following syntax will be used to denote a phrase with optional components:  
+`Launch [Notepad, Word]`  
+In this instance it can mean "Launch Notepad" or "Launch Word".  
+##### Choices Objects
+Choices objects represent a series of optional words. As in the above example, `[Notepad, Word]` is a series of Choices.  
+##### Grammar Objects
+Grammar objects are the primary building blocks of HotVoice. They can hold either single words, or choices objects, or even other Grammar objects.
+#### Initializing HotVoice
+A HotVoice script must do the following:  
+1. Load the HotVoice Library
+```
+; Load the HotVoice Library
+#include Lib\HotVoice.ahk
+```
+2. Create a new HotVoice class
+```
+hv := new HotVoice()
+```
+3. Add at least one Grammar
+```
+; Create a new Grammar
+testGrammar := hv.NewGrammar()
+
+; Add the word "Test" to it
+testGrammar.AppendString("Test")
+
+; Load the Grammar
+hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))
+```
+4. Start the Recognizer
+```
+hv.StartRecognizer()
+```
+
 
 # Developers
 This **ONLY APPLIES** if you want to work with the C# code that powers HotVoice.  
