@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Speech.Recognition;
 
 namespace TestApp
 {
@@ -10,38 +11,65 @@ namespace TestApp
     {
         static void Main(string[] args)
         {
-            var hv = new HotVoice();
+            var hv = new HotVoice.HotVoice();
             hv.Initialize();
+            
+            // ----------------------- Volume Demo --------------------
+            var volumeGrammar = hv.NewGrammar();
+            volumeGrammar.AppendString("Volume");
 
-            //hv.AddChoiceList("udlr", new[] {"Up", "Down", "Left", "Right"});
-            hv.AddChoiceList("Apps", "Notepad, Command Prompt");
-            hv.SubscribeWordWithChoiceList("flaps", "Percent", new Action<string>((value) => {
-                Console.WriteLine($"flaps: {value}");
-            }));
+            var percentPhrase = hv.NewGrammar();
+            var percentChoices = hv.GetChoices("Percent");
+            percentPhrase.AppendChoices(percentChoices);
+            percentPhrase.AppendString("percent");
 
-            hv.SubscribeWordWithChoiceList("Launch", "Apps", new Action<string>((value) =>
+            var fractionPhrase = hv.NewGrammar();
+            var fractionChoices = hv.NewChoices("quarter, half, three-quarters, full");
+            fractionPhrase.AppendChoices(fractionChoices);
+
+            volumeGrammar.AppendGrammars(percentPhrase, fractionPhrase);
+
+            hv.LoadGrammar(volumeGrammar, "Volume", new Action<string, string[]>((name, values) =>
             {
-                Console.WriteLine($"Launch: *{value}*");
+                Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
 
-            hv.SubscribeWord("test", new Action(() =>
+            // ---------------------- Call Contact Demo ----------------
+            var contactGrammar = hv.NewGrammar();
+            contactGrammar.AppendString("Call");
+
+            var femaleChoices = hv.NewChoices("Anne, Mary");
+            var femalePhrase = hv.NewGrammar();
+            femalePhrase.AppendChoices(femaleChoices);
+            femalePhrase.AppendString("on her");
+
+            var maleChoices = hv.NewChoices("James, Sam");
+            var malePhrase = hv.NewGrammar();
+            malePhrase.AppendChoices(maleChoices);
+            malePhrase.AppendString("on his");
+
+            contactGrammar.AppendGrammars(malePhrase, femalePhrase);
+
+            var phoneChoices = hv.NewChoices("cell, home, work");
+            contactGrammar.AppendChoices(phoneChoices);
+
+            contactGrammar.AppendString("phone");
+
+            hv.LoadGrammar(contactGrammar, "CallContact", new Action<string, string[]>((name, values) =>
             {
-                Console.WriteLine("Test");
+                Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
-
-            //hv.SubscribeWord("one", new Action(() => {
-            //    Console.WriteLine("One");
-            //}));
 
             //hv.SubscribeVolume(new Action<int>((value) => {
             //    Console.WriteLine("Volume: " + value);
             //}));
+
+            hv.StartRecognizer();
 
             while (true)
             {
                 Console.ReadLine();
             }
         }
-
     }
 }

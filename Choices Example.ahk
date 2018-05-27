@@ -1,8 +1,7 @@
-#SingleInstance force
-#Persistent
+; This script demonstrates a single initial word ("Test"), followed by a choice of "Up", "Down", "Left" or "Right"
 
-; Define a list of apps
-appsList := {DosBox: {ExeName: "cmd.exe"}, Notepad: {ExeName: "Notepad.exe"}}
+#SingleInstance force
+#Persistent ; You will need this if your script creates no hotkeys or has no GUI
 
 ; Load the HotVoice Library
 #include Lib\HotVoice.ahk
@@ -13,46 +12,25 @@ hv := new HotVoice()
 ; Initialize HotVoice and tell it what ID Recognizer to use
 hv.Initialize(0)
 
-; Add a List of Apps
-; We need to pass a comma-separated list of choices...
-; ... so parse the appNames array and build the list
-for app in appsList {
-	c++
-}
-for appName, appObj in appsList {
-	i++
-	appNames .= appName
-	if (i != c){
-		appNames .= ","
-	}
-}
-; Add the list of apps as a "Choice List"
-hv.AddChoiceList("Apps", appNames)
+; Create a new Grammar
+testGrammar := hv.NewGrammar()
 
-; Add some commands to control the apps
-hv.SubscribeWordWithChoiceList("Launch", "Apps", Func("ChoiceTest").Bind("Launch"))
-hv.SubscribeWordWithChoiceList("Close", "Apps", Func("ChoiceTest").Bind("Close"))
-hv.SubscribeWordWithChoiceList("Minimize", "Apps", Func("ChoiceTest").Bind("Minimize"))
-hv.SubscribeWordWithChoiceList("Maximize", "Apps", Func("ChoiceTest").Bind("Maximize"))
-hv.SubscribeWordWithChoiceList("Restore", "Apps", Func("ChoiceTest").Bind("Restore"))
+; Add the word "Test" to it
+testGrammar.AppendString("Test")
+
+; Create a new Choices object with four direction choices
+directionChoices := hv.NewChoices("up, down, left, right")
+
+; Add the direction choices to the Grammar
+testGrammar.AppendChoices(directionChoices)
+
+; Load the Grammar
+hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))
+
+hv.StartRecognizer()
 
 return
 
-ChoiceTest(verb, app){
-	global appsList
-	ToolTip % verb " was triggered @ " A_TickCount "`nChoice: *" app "*"
-	if (verb = "launch"){
-		Run % appsList[app].ExeName
-	} else if (verb = "close"){
-		WinClose, % "ahk_exe " appsList[app].ExeName
-	} else if (verb = "Minimize"){
-		WinMinimize, % "ahk_exe " appsList[app].ExeName
-	} else if (verb = "Maximize"){
-		WinMaximize, % "ahk_exe " appsList[app].ExeName
-	} else if (verb = "Restore"){
-		WinRestore, % "ahk_exe " appsList[app].ExeName
-	}
+MyFunc(grammarName, words){
+	ToolTip % "Command: " grammarName " " words[2]
 }
-
-^Esc::
-	ExitApp
