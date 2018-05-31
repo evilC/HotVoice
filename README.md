@@ -2,6 +2,8 @@
 
 Use your voice as a Hotkey in AutoHotkey!  
 
+[Discussion Thread](https://autohotkey.com/boards/viewtopic.php?f=6&t=34288)
+
 ## Using HotVoice in your scripts
 ### Initial Setup
 1. Install the [Microsoft Speech Platform Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=27225)  
