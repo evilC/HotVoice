@@ -13,7 +13,8 @@ eg `MSSpeech_SR_en-US_TELE.msi`
 3. Download a release of HotVoice from the [Releases Page](https://github.com/evilC/HotVoice/releases) and unzip it to a folder of your choice (This shall be referred to as the "HotVoice folder" from now on).    
 **DO NOT** use the "Clone or Download" button on the main GitHub page, this is for developers.  
 4. Ensure the DLLs that are in the HotVoice Folder are not blocked.  
-There are various ways to do this, but I find the simplest is to run the powershell command `Get-ChildItem -Path '.' -Recurse | Unblock-File` in the Hotvoice Folder.  
+There are various ways to do this, but I find the simplest is to run the following powershell command in the Hotvoice Folder:  
+`Get-ChildItem -Path '.' -Recurse | Unblock-File`  
 5. Run the Demo script and make sure it works for you.  
 It should look something like this:  
 ![](https://i.imgur.com/TLzzvTF.png) 
@@ -21,7 +22,6 @@ It should look something like this:
 "Recognizers" are basically Language Packs. Ordering seems pretty arbitrary, but the "Lightweight" one seems present on all machines and does not seem to work. Luckily, it seems that any other language pack that is installed will be `ID 0`, so for now I just hard-code the Demo to use ID 0. You can tweak it in the code though. 
 The `Mic Volume` slider should move when you speak.  
 HotVoice uses the "Default Recording Device" that is configured in Windows.  
-6. See the `Simple Example.ahk` for the simplest possible script. More documentation will be forthcoming, sorry...
 
 ### Using the Library
 #### Grammar and Choices objects
