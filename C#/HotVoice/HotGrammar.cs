@@ -7,7 +7,9 @@ namespace HotVoice
     {
         public HotGrammar NewGrammar()
         {
-            return new HotGrammar();
+            var hg =new HotGrammar();
+            hg.GrammarBuilder.Culture = _cultureInfo;
+            return hg;
         }
 
         /// <summary>

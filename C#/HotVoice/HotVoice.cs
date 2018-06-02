@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.Speech.Recognition;
 
@@ -26,6 +27,7 @@ namespace HotVoice
         private readonly List<RecognizerInfo> _recognizers;
         private readonly  Dictionary<string, Choices> _choicesDictionary = new Dictionary<string, Choices>(StringComparer.OrdinalIgnoreCase);
         private readonly Dictionary<string, LoadedGrammar> _loadedHotGrammarDictionary = new Dictionary<string, LoadedGrammar>(StringComparer.OrdinalIgnoreCase);
+        private CultureInfo _cultureInfo;
 
         #region Startup
         public HotVoice()
@@ -54,7 +56,9 @@ namespace HotVoice
         {
             AssertRecognizerExists(recognizerId);
 
-            _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Id);
+            _cultureInfo = new CultureInfo(_recognizers[recognizerId].Culture.Name);
+
+            _recognizer = new SpeechRecognitionEngine(_cultureInfo);
 
             // Add a handler for the speech recognized event.
             _recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
