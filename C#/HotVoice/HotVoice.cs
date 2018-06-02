@@ -55,7 +55,7 @@ namespace HotVoice
         {
             AssertRecognizerExists(recognizerId);
 
-            _recognizer = new SpeechRecognitionEngine(new CultureInfo(_recognizers[recognizerId].Culture.Name));
+            _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Culture);
 
             // Add a handler for the speech recognized event.
             _recognizer.SpeechRecognized += Recognizer_SpeechRecognized;
