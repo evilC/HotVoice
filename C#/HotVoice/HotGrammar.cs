@@ -8,7 +8,7 @@ namespace HotVoice
         public HotGrammar NewGrammar()
         {
             var hg =new HotGrammar();
-            hg.GrammarBuilder.Culture = _cultureInfo;
+            hg.GrammarBuilder.Culture = _recognizer.RecognizerInfo.Culture;
             return hg;
         }
 
