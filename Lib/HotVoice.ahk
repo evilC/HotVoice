@@ -27,9 +27,9 @@ Class HotVoice {
 	}
 	
 	Initialize(id){
-		c := this.Instance.GetRecognizerCount()
+		c := this.Instance.GetRecognizerCount() - 1
 		if (id > c){
-			MsgBox % "No Such ID " c
+			MsgBox % "No Such ID " id
 			ExitApp
 		}
 		return this.Instance.Initialize(id)
