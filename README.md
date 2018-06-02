@@ -18,7 +18,7 @@ Right-click `unblock.ps1` in the HotVoice Folder and select "Run as Administrato
 It should look something like this:  
 ![](https://i.imgur.com/TLzzvTF.png) 
 
-"Recognizers" are basically Language Packs. Ordering seems to be based on installation order, with the "Lightweight" always present and at the end of the list. Therefore, if you only install one language pack, it should always be `ID 0`, so everything defaults to using ID 0. 
+"Recognizers" are basically Language Packs. Ordering seems to be based on installation order, with the "Lightweight" pack always present and at the end of the list. Therefore, if you only install one language pack, it should always be `ID 0`, so everything in HotVoice defaults to using ID 0. 
 The `Mic Volume` slider should move when you speak.  
 HotVoice uses the "Default Recording Device" that is configured in Windows.  
 
