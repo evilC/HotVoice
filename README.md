@@ -13,8 +13,7 @@ eg `MSSpeech_SR_en-US_TELE.msi`
 3. Download a release of HotVoice from the [Releases Page](https://github.com/evilC/HotVoice/releases) and unzip it to a folder of your choice (This shall be referred to as the "HotVoice folder" from now on).    
 **DO NOT** use the "Clone or Download" button on the main GitHub page, this is for developers.  
 4. Ensure the DLLs that are in the HotVoice Folder are not blocked.  
-There are various ways to do this, but I find the simplest is to run the following powershell command in the Hotvoice Folder as an Administrator:  
-`Get-ChildItem -Path '.' -Recurse | Unblock-File`  
+Right-click `unblock.ps1` in the HotVoice Folder and select "Run as Administrator".  
 5. Run the Demo script and make sure it works for you.  
 It should look something like this:  
 ![](https://i.imgur.com/TLzzvTF.png) 
