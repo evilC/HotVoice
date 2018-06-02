@@ -115,4 +115,5 @@ UpdateOutput(text){
 }
 
 ^Esc::
+GuiClose:
 	ExitApp
