@@ -39,6 +39,10 @@ Class HotVoice {
 		return this.Instance.StartRecognizer()
 	}
 	
+	StopRecognizer(){
+		return this.Instance.StopRecognizer()
+	}
+	
 	GetWords(arr){
 		max := arr.MaxIndex()
 		ret := []

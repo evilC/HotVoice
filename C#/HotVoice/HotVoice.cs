@@ -110,6 +110,15 @@ namespace HotVoice
                 _recognizerRunning = true;
             }
         }
+
+        public void StopRecognizer()
+        {
+            if (_recognizerRunning)
+            {
+                _recognizer.RecognizeAsyncStop();
+                _recognizerRunning = false;
+            }
+        }
         #endregion
 
         #region Grammar and Choice Dictionary manipulation
