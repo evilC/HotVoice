@@ -18,7 +18,7 @@ Class HotVoice {
 	}
 	
 	LoadGrammar(grammar, name, callback){
-		if (this._grammarCallbacks.HasKey(nanme)){
+		if (this._grammarCallbacks.HasKey(name)){
 			throw new Exception("Grammar " name " already exists")
 		}
 		this._grammarCallbacks[name] := callback
