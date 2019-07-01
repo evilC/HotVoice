@@ -5,15 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 ### Added
-- Added support for switching language by calling Initialize with new ID
-- Demo now supports multiple languages
-- Demo has commands for French language
 ### Changed 
 ### Deprecated
 ### Removed
 ### Fixed
+
+## [0.1.14] - 2019-07-01
+### Added
+- Added support for switching language by calling Initialize with new ID
+- Demo now supports multiple languages
+- Demo has commands for French language
+### Fixed
 - Fixed issue #3 (Typo in LoadGrammar() in HotVoice.ahk)
 - Demo no longer crashes if language 0 is not English
+
 
 ## [0.1.3] - 2018-12-11
 ### Added
