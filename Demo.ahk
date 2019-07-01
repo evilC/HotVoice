@@ -9,14 +9,17 @@ hv := new HotVoice()
 recognizers := hv.GetRecognizerList()
 
 Gui, Add, Text, xm w600 Center, Available Recognizers
-Gui, Add, ListView, xm w600 r5 hwndhRecognizerId -Multi, ID|Name|Code
+Gui, Add, ListView, xm w600 r5 hwndhRecognizerId -Multi, ID|Name|Code|Language
 Loop % recognizers.Length(){
 	rec := recognizers[A_index]
-	LV_Add(, rec.Id, rec.Name, rec.TwoLetterISOLanguageName)
+	if (rec.TwoLetterISOLanguageName == "iv")
+		continue ; Invariant language culture does not seem to be supported
+	LV_Add(, rec.Id, rec.Name, rec.TwoLetterISOLanguageName, rec.LanguageDisplayName)
 }
-LV_ModifyCol(1, 50)
-LV_ModifyCol(2, 450)
-LV_ModifyCol(3, 75)
+LV_ModifyCol(1, 30)
+LV_ModifyCol(2, 350)
+LV_ModifyCol(3, 40)
+LV_ModifyCol(4, 155)
 LV_Modify(1, "Select")
 Gui, Add, Button, Center w600 gLoadRecognizer, Load selected recognizer`n(Languages supported by this demo: en, fr)
 Gui, Add, Text, xm w600 Center, Available Commands
@@ -32,13 +35,16 @@ return
 LoadRecognizer:
 ; Initialize HotVoice and tell it what ID Recognizer to use
 Gui, ListView, % hRecognizerId
+if (LV_GetCount() == 0){
+	UpdateOutput("No supported languages found")
+	return
+}
 recognizer := GetCurrentRecognizer()
 Gui, ListView, % hAvailableCommands
 LV_Delete()
 
 if (recognizer.TwoLetterISOLanguageName == "en"){
 	; ==== ENGLISH ====
-	LogRecognizerLoad(recognizer)
 	hv.Initialize(recognizer.Id)
 	; -------- Volume Command ------------
 	volumeGrammar := hv.NewGrammar()
@@ -81,7 +87,6 @@ if (recognizer.TwoLetterISOLanguageName == "en"){
 	LV_Add(, "CallContact", hv.LoadGrammar(contactGrammar, "CallContact", Func("LogWords")))
 } else if (recognizer.TwoLetterISOLanguageName == "fr"){
 	; ==== FRENCH ====
-	LogRecognizerLoad(recognizer)
 	hv.Initialize(recognizer.Id)
 	
 	; -------- Volume Command ------------
@@ -116,6 +121,7 @@ if (recognizer.TwoLetterISOLanguageName == "en"){
 
 ; Monitor the volume
 hv.SubscribeVolume(Func("OnMicVolumeChange"))
+LogRecognizerLoad(recognizer)
 hv.StartRecognizer()
 
 return
