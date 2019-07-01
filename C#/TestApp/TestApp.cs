@@ -11,51 +11,65 @@ namespace TestApp
     {
         static void Main(string[] args)
         {
-            var hv = new HotVoice.HotVoice();
-            hv.Initialize();
-            
+            var hvTester = new HvTester();
+        }
+    }
+
+    public class HvTester
+    {
+        private readonly HotVoice.HotVoice _hv = new HotVoice.HotVoice();
+
+        public HvTester()
+        {
+            int id;
+
+            // ======================= English ========================
+            id = GetLanguageId("en");
+            _hv.Initialize(id);
+            Console.WriteLine("Initialized English tester");
+
             // ----------------------- Volume Demo --------------------
-            var volumeGrammar = hv.NewGrammar();
+            var volumeGrammar = _hv.NewGrammar();
             volumeGrammar.AppendString("Volume");
 
-            var percentPhrase = hv.NewGrammar();
-            var percentChoices = hv.GetChoices("Percent");
+            var percentPhrase = _hv.NewGrammar();
+            var percentChoices = _hv.GetChoices("Percent");
             percentPhrase.AppendChoices(percentChoices);
             percentPhrase.AppendString("percent");
 
-            var fractionPhrase = hv.NewGrammar();
-            var fractionChoices = hv.NewChoices("quarter, half, three-quarters, full");
+            var fractionPhrase = _hv.NewGrammar();
+            var fractionChoices = _hv.NewChoices("quarter, half, three-quarters, full");
             fractionPhrase.AppendChoices(fractionChoices);
 
             volumeGrammar.AppendGrammars(percentPhrase, fractionPhrase);
 
-            hv.LoadGrammar(volumeGrammar, "Volume", new Action<string, string[]>((name, values) =>
+            _hv.LoadGrammar(volumeGrammar, "Volume", new Action<string, string[]>((name, values) =>
             {
                 Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
 
             // ---------------------- Call Contact Demo ----------------
-            var contactGrammar = hv.NewGrammar();
+            var contactGrammar = _hv.NewGrammar();
             contactGrammar.AppendString("Call");
 
-            var femaleChoices = hv.NewChoices("Anne, Mary");
-            var femalePhrase = hv.NewGrammar();
+            var femaleChoices = _hv.NewChoices("Anne, Mary");
+            var femalePhrase = _hv.NewGrammar();
             femalePhrase.AppendChoices(femaleChoices);
             femalePhrase.AppendString("on her");
 
-            var maleChoices = hv.NewChoices("James, Sam");
-            var malePhrase = hv.NewGrammar();
+            var maleChoices = _hv.NewChoices("James, Sam");
+            var malePhrase = _hv.NewGrammar();
             malePhrase.AppendChoices(maleChoices);
             malePhrase.AppendString("on his");
 
             contactGrammar.AppendGrammars(malePhrase, femalePhrase);
 
-            var phoneChoices = hv.NewChoices("cell, home, work");
+            var phoneChoices = _hv.NewChoices("cell, home, work");
             contactGrammar.AppendChoices(phoneChoices);
 
             contactGrammar.AppendString("phone");
 
-            hv.LoadGrammar(contactGrammar, "CallContact", new Action<string, string[]>((name, values) =>
+            _hv.LoadGrammar(contactGrammar, "CallContact", new Action<string, string[]>((name, values) =>
             {
                 Console.WriteLine($"{name}: {string.Join(" ", values)}");
             }));
@@ -64,12 +78,40 @@ namespace TestApp
             //    Console.WriteLine("Volume: " + value);
             //}));
 
-            hv.StartRecognizer();
+            _hv.StartRecognizer();
 
-            while (true)
+            Console.WriteLine("Press ENTER to load French");
+            Console.ReadLine();
+
+            // ======================= French ========================
+            id = GetLanguageId("fr");
+            _hv.Initialize(id);
+            Console.WriteLine("Initialized French tester");
+
+            var frenchGrammar = _hv.NewGrammar();
+            frenchGrammar.AppendString("Bonjour");
+
+            _hv.LoadGrammar(frenchGrammar, "Bonjour", new Action<string, string[]>((name, values) =>
             {
-                Console.ReadLine();
+                Console.WriteLine($"{name}: {string.Join(" ", values)}");
+            }));
+            _hv.StartRecognizer();
+
+            Console.WriteLine("Press ENTER to Exit");
+            Console.ReadLine();
+        }
+
+        private int GetLanguageId(string language)
+        {
+            var infos = _hv.GetRecognizerInfos();
+            for (var i = 0; i < infos.Count; i++)
+            {
+                if (infos[i].Culture.TwoLetterISOLanguageName == language)
+                {
+                    return i;
+                }
             }
+            throw new Exception($"Could not find language {language}");
         }
     }
 }

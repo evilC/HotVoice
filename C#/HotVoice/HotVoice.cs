@@ -53,6 +53,11 @@ namespace HotVoice
         /// <param name="recognizerId">The RecognizerID to use</param>
         public void Initialize(int recognizerId = 0)
         {
+            if (_recognizer != null) // If recognizer already initialized, stop it, as we may be loading a new language
+            {
+                StopRecognizer();
+                _recognizer.SpeechRecognized -= Recognizer_SpeechRecognized;
+            }
             AssertRecognizerExists(recognizerId);
 
             _recognizer = new SpeechRecognitionEngine(_recognizers[recognizerId].Culture);
@@ -103,6 +108,10 @@ namespace HotVoice
         /// </summary>
         public void StartRecognizer()
         {
+            if (_recognizerRunning)
+            {
+                StopRecognizer();
+            }
             if (!_recognizerRunning)
             {
                 // Start asynchronous, continuous speech recognition.
@@ -164,15 +173,21 @@ namespace HotVoice
             return _recognizers[recognizerId].Name;
         }
 
-        public Dictionary<string, string> GetRecognizers()
+        public string GetRecognizerTwoLetterISOLanguageName(int recognizerId)
         {
-            var dict = new Dictionary<string, string>();
-            foreach (var t in _recognizers)
-            {
-                dict.Add(t.Id, t.Name);
-            }
+            AssertRecognizerExists(recognizerId);
+            return _recognizers[recognizerId].Culture.TwoLetterISOLanguageName;
+        }
 
-            return dict;
+        public string GetRecognizerLanguageDisplayName(int recognizerId)
+        {
+            AssertRecognizerExists(recognizerId);
+            return _recognizers[recognizerId].Culture.DisplayName;
+        }
+
+        public List<RecognizerInfo> GetRecognizerInfos()
+        {
+            return _recognizers;
         }
 
         #endregion

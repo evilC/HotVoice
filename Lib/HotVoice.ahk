@@ -98,7 +98,9 @@ Class HotVoice {
 		Loop % c {
 			i := A_Index - 1
 			n := this.Instance.GetRecognizerName(i)
-			this.RecognizerList.Push({ID: i, Name: n})
+			twoLetterISOLanguageName := this.Instance.GetRecognizerTwoLetterISOLanguageName(i)
+			languageDisplayName := this.Instance.GetRecognizerLanguageDisplayName(i)
+			this.RecognizerList.Push({ID: i, Name: n, TwoLetterISOLanguageName: twoLetterISOLanguageName, LanguageDisplayName: languageDisplayName})
 		}
 	}
 	
