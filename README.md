@@ -4,12 +4,13 @@ Use your voice as a Hotkey in AutoHotkey!
 
 [Discussion Thread](https://autohotkey.com/boards/viewtopic.php?f=6&t=34288)
 
-## Using HotVoice in your scripts
+## Using HotVoice in your scripts  
 ### Initial Setup
 1. Install the [Microsoft Speech Platform Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=27225)  
 You will need either x86 or x64, depending on what version of AHK you run. No harm in installing both, just to be sure.  
 2. Install at least one [Language Pack](https://www.microsoft.com/en-us/download/details.aspx?id=27224)  
 eg `MSSpeech_SR_en-US_TELE.msi`  
+Note that while Windows 7 is technically supported, language packs may fail to properly load. [See here](https://stackoverflow.com/questions/10634843/unable-to-correctly-install-ms-speech-platform-11-on-win-7-x64)  
 3. Download a release of HotVoice from the [Releases Page](https://github.com/evilC/HotVoice/releases) and unzip it to a folder of your choice (This shall be referred to as the "HotVoice folder" from now on).    
 **DO NOT** use the "Clone or Download" button on the main GitHub page, this is for developers.  
 4. Ensure the DLLs that are in the HotVoice Folder are not blocked.  
