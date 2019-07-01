@@ -90,10 +90,21 @@ Loads a GrammarObject into the Recognizer and specifies which function to call w
 `void LoadGrammar(GrammarObject g, string name, BoundFunc callback)`  
 eg `hv.LoadGrammar(testGrammar, "Test", Func("MyFunc"))`  
 
+##### GetRecognizerList
+Gets a list of available recognizers  
+`RecognizerObject GetRecognizerList()`  
+eg `recgonizers := recognizers := hv.GetRecognizerList()`  
+RecognizerObject is an array containing objects with the following properties:  
+ID: The ID of the recognizer (Starts at 0)  
+Name: The Name of the recognizer  
+TwoLetterISOLanguageName: The [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code for the language (eg "en")  
+LanguageDisplayName: The display name for the language (eg "English (United States)")  
+
 ##### Initialize
 Loads a Recognizer  
 `void Initialize(int recognizerId = 0)`  
 eg `hv.Initialize()`  
+Note that if you call `Initialize`, any previously loaded recognizer is unloaded.  
 
 ##### StartRecognizer  
 Starts the Recognizer  
