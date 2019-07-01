@@ -18,7 +18,7 @@ LV_ModifyCol(1, 50)
 LV_ModifyCol(2, 450)
 LV_ModifyCol(3, 75)
 LV_Modify(1, "Select")
-Gui, Add, Button, Center w600 gLoadRecognizer, Load Recognizer (WARNING! Loading non-english recognizer will cause a crash)
+Gui, Add, Button, Center w600 gLoadRecognizer, Load Recognizer
 Gui, Add, Text, xm w600 Center, Available Commands
 Gui, Add, ListView, xm w600 r10 hwndhAvailableCommands, Name|Grammar
 Gui, Add, Text, xm Center w600, Mic Volume
