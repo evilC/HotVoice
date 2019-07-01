@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 - Added support for switching language by calling Initialize with new ID
 - Demo now supports multiple languages
+- Demo has commands for French language
 ### Changed 
 ### Deprecated
 ### Removed
