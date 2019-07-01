@@ -18,14 +18,14 @@ LV_ModifyCol(1, 50)
 LV_ModifyCol(2, 450)
 LV_ModifyCol(3, 75)
 LV_Modify(1, "Select")
-Gui, Add, Button, Center w600 gLoadRecognizer, Load Recognizer
+Gui, Add, Button, Center w600 gLoadRecognizer, Load selected recognizer`n(Languages supported by this demo: en, fr)
 Gui, Add, Text, xm w600 Center, Available Commands
 Gui, Add, ListView, xm w600 r10 hwndhAvailableCommands, Name|Grammar
 Gui, Add, Text, xm Center w600, Mic Volume
 Gui, Add, Slider, xm w600 hwndhSlider
 Gui, Add, Text, xm Center w600, Output
 Gui, Add, Edit, hwndhOutput w600 r5
-LV_ModifyCol(1, 80)
+LV_ModifyCol(1, 125)
 Gui, Show, , HotVoice Demo
 return
 
@@ -37,6 +37,7 @@ Gui, ListView, % hAvailableCommands
 LV_Delete()
 
 if (recognizer.TwoLetterISOLanguageName == "en"){
+	; ==== ENGLISH ====
 	LogRecognizerLoad(recognizer)
 	hv.Initialize(recognizer.Id)
 	; -------- Volume Command ------------
@@ -53,8 +54,9 @@ if (recognizer.TwoLetterISOLanguageName == "en"){
 	fractionPhrase.AppendChoices(fractionChoices)
 
 	volumeGrammar.AppendGrammars(fractionPhrase, percentPhrase)
-
-	LV_Add(, "Volume", hv.LoadGrammar(volumeGrammar, "Volume", Func("Volume")))
+	hv.LoadGrammar(volumeGrammar, "Volume", Func("LogWords"))
+	; Use custom text in listview, else it is too long
+	LV_Add(, "Volume", "Volume [[quarter,half,three-quarters,full],[<Number> percent]]")
 
 	; -------- Call Contact Command -------------
 	contactGrammar := hv.NewGrammar()
@@ -76,16 +78,37 @@ if (recognizer.TwoLetterISOLanguageName == "en"){
 	contactGrammar.AppendChoices(phoneChoices)
 	contactGrammar.AppendString("phone")
 
-	LV_Add(, "CallContact", hv.LoadGrammar(contactGrammar, "CallContact", Func("CallContact")))
+	LV_Add(, "CallContact", hv.LoadGrammar(contactGrammar, "CallContact", Func("LogWords")))
 } else if (recognizer.TwoLetterISOLanguageName == "fr"){
+	; ==== FRENCH ====
 	LogRecognizerLoad(recognizer)
 	hv.Initialize(recognizer.Id)
-	frenchGrammar := hv.NewGrammar()
-	frenchGrammar.AppendString("Bonjour")
-	LV_Add(, "French Test", hv.LoadGrammar(frenchGrammar, "Bonjour", Func("French")))
-} else if (recognizer.TwoLetterISOLanguageName == "de"){
-	LogRecognizerLoad(recognizer)
-	hv.Initialize(recognizer.Id)
+	
+	; -------- Volume Command ------------
+	volumeGrammar := hv.NewGrammar()
+	volumeGrammar.AppendString("Volume")
+
+	percentPhrase := hv.NewGrammar()
+	percentChoices := hv.GetChoices("Percent")
+	percentPhrase.AppendChoices(percentChoices)
+	percentPhrase.AppendString("Pour-cent")
+
+	volumeGrammar.AppendGrammars(percentPhrase)
+	hv.LoadGrammar(volumeGrammar, "FrenchVolume", Func("LogWords"))
+	LV_Add(, "Volume", "Volume [<Nombre>] pour cent")
+	
+	; -------- French Greeting Command ------------
+	contactGrammar := hv.NewGrammar()
+	contactGrammar.AppendString("Bonjour")
+
+	maleGrammar := hv.NewGrammar()
+	maleChoices := hv.NewChoices("Claude, Jaques")
+	maleGrammar.AppendChoices(maleChoices)
+
+	contactGrammar.AppendGrammars(maleGrammar)
+
+	LV_Add(, "Greeting (French)", hv.LoadGrammar(contactGrammar, "FrenchGreeting", Func("LogWords")))
+	
 } else {
 	UpdateOutput("Language " recognizer.TwoLetterISOLanguageName " is not supported by this demo")
 	return
@@ -112,30 +135,17 @@ OnMicVolumeChange(state){
 	GuiControl, , % hSlider, % state
 }
 
-French(grammarName, words){
-	UpdateOutput("Bonjour")
+; Log out recognized words
+LogWords(grammarName, words){
+	UpdateOutput(grammarName ": " Join(words))
 }
 
-Volume(grammarName, words){
-	static fractionToPercent := {"quarter": 25, "half": 50, "three-quarters": 75, "full": 100}
-	if (words[3] = "percent"){
-		vol := words[2]
-	} else {
-		vol := fractionToPercent[words[2]]
+; Join array of words into sentence
+Join(arr){
+	for i, w in arr {
+		str .= w " "
 	}
-	UpdateOutput(grammarName ": " words[2] " " words[3] " -- SETTING VOLUME TO " vol)
-	SoundSet, % vol
-}
-
-CallContact(grammarName, words){
-	max := words.Length()
-	Loop % max {
-		wordStr .= words[A_Index]
-		if (A_Index != max){
-			wordStr .= " "
-		}
-	}
-	UpdateOutput(grammarName ": " wordStr)
+	return str
 }
 
 UpdateOutput(text){
