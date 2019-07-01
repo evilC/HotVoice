@@ -2,7 +2,10 @@
 
 Use your voice as a Hotkey in AutoHotkey!  
 
-[Discussion Thread](https://autohotkey.com/boards/viewtopic.php?f=6&t=34288)
+[Discussion Thread](https://autohotkey.com/boards/viewtopic.php?f=6&t=34288)  
+
+## Help improve HotVoice!
+If you speak a language other than English, I would greatly appreciate it if you could help expand the demo or suggest other changes!  
 
 ## Using HotVoice in your scripts  
 ### Initial Setup
