@@ -9,6 +9,7 @@ Use your voice as a Hotkey in AutoHotkey!
 1. Install the [Microsoft Speech Platform Runtime](https://www.microsoft.com/en-us/download/details.aspx?id=27225)  
 You will need either x86 or x64, depending on what version of AHK you run. No harm in installing both, just to be sure.  
 2. Install at least one [Language Pack](https://www.microsoft.com/en-us/download/details.aspx?id=27224)  
+Speech recognition packs will have `SR` in their name. `TTS` labelled downloads are for Text-to-speech and will not work with HotVoice.  
 eg `MSSpeech_SR_en-US_TELE.msi`  
 Note that while Windows 7 is technically supported, language packs may fail to properly load. [See here](https://stackoverflow.com/questions/10634843/unable-to-correctly-install-ms-speech-platform-11-on-win-7-x64)  
 3. Download a release of HotVoice from the [Releases Page](https://github.com/evilC/HotVoice/releases) and unzip it to a folder of your choice (This shall be referred to as the "HotVoice folder" from now on).    
