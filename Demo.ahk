@@ -113,7 +113,62 @@ if (recognizer.TwoLetterISOLanguageName == "en"){
 	contactGrammar.AppendGrammars(maleGrammar)
 
 	LV_Add(, "Greeting (French)", hv.LoadGrammar(contactGrammar, "FrenchGreeting", Func("LogWords")))
-	
+} else if (recognizer.TwoLetterISOLanguageName == "ru"){
+	; ==== RUSSIAN ====
+	hv.Initialize(recognizer.Id)
+	; -------- Volume Command ------------
+	volumeGrammar := hv.NewGrammar()
+	volumeGrammar.AppendString("Громкость")
+
+	percent1Phrase := hv.NewGrammar()
+	percent1Choices := hv.GetChoices("Percent")
+	percent1Phrase.AppendChoices(percent1Choices)
+	;in real life language it sounds more like "процентоф", but it also work with grammatically correct "процентов"
+	percent1Phrase.AppendString("процентов")
+
+	percent2Phrase := hv.NewGrammar()
+	percent2Choices := hv.GetChoices("Percent")
+	percent2Phrase.AppendChoices(percent2Choices)
+	percent2Phrase.AppendString("процента")
+
+	percent3Phrase := hv.NewGrammar()
+	percent3Choices := hv.GetChoices("Percent")
+	percent3Phrase.AppendChoices(percent3Choices)
+	percent3Phrase.AppendString("процент")
+
+	fractionPhrase := hv.NewGrammar()
+	fractionChoices := hv.NewChoices("четверть, половина, три-четверти, полная")
+	fractionPhrase.AppendChoices(fractionChoices)
+
+	volumeGrammar.AppendGrammars(percent1Phrase, percent2Phrase, percent3Phrase, fractionPhrase)
+
+	hv.LoadGrammar(volumeGrammar, "RussianVolume", Func("LogWords"))
+	; Use custom text in listview, else it is too long
+	LV_Add(, "Volume", "Громкость [[четверть,половина,три-четверти,полная],[<число> процентов,процента,процент]]")
+
+	; -------- Call Contact Command -------------
+	contactGrammar := hv.NewGrammar()
+	contactGrammar.AppendString("Позвонить")
+
+	femaleGrammar := hv.NewGrammar()
+	;grammatically correct form "Кристине, Маше" but it sounds in language more like "Кристине, Маши"
+	femaleChoices := hv.NewChoices("Кристине, Маши")
+	femaleGrammar.AppendChoices(femaleChoices)
+	femaleGrammar.AppendString("на-ее")
+
+	maleGrammar := hv.NewGrammar()
+	maleChoices := hv.NewChoices("Олегу, Роме")
+	maleGrammar.AppendChoices(maleChoices)
+	;grammatically correct form "на-его" but it sounds in language more like "на-ево"
+	maleGrammar.AppendString("на-ево")
+
+	contactGrammar.AppendGrammars(maleGrammar, femaleGrammar)
+
+	phoneChoices := hv.NewChoices("сотовый, домашний, рабочий")
+	contactGrammar.AppendChoices(phoneChoices)
+	contactGrammar.AppendString("телефон")
+
+	LV_Add(, "CallContact", hv.LoadGrammar(contactGrammar, "RussianCallContact", Func("LogWords")))	
 } else {
 	UpdateOutput("Language " recognizer.TwoLetterISOLanguageName " is not supported by this demo")
 	return
