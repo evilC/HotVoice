@@ -73,6 +73,7 @@ hv.StartRecognizer()
 Creates a new Choices object from a comma-separated string
 `Choices NewChoices(string choiceListStr)`  
 eg `choices := hv.NewChoices("Up, Down, Left, Right")`  
+Note that if you want to re-use the same choices in multiple scripts, see [MikeHotelOscar's ChoiceBuilder library](https://github.com/MikeHotelOscar/HotVoice-ChoiceBuilder)  
 
 ##### NewGrammar
 Creates a new, empty Grammar Object  
